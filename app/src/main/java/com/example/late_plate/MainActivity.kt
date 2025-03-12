@@ -7,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.late_plate.dummy.dummyRecipes
+import com.example.late_plate.ui.screens.login.LoginScreen
+import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.ui.theme.Late_plateTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,28 +20,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             Late_plateTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    RecipeScreen(modifier = Modifier.padding(innerPadding), data = dummyRecipes.first())
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Late_plateTheme {
-        Greeting("Android")
-    }
-}
