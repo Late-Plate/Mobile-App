@@ -39,8 +39,8 @@ val dummyRecipes = listOf(
         )
     ),
     Recipe(
-        title = "Spaghetti Carbonara",
-        description = "A traditional Italian pasta dish made with eggs, cheese, pancetta, and black pepper.",
+        title = "Spaghetti Carbonaraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        description = "A traditional Italian pasta dish made with eggs, cheese, pancetta, and black pepperrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr.",
         imageUrl = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.hellmanns.com%2Fus%2Fen%2Fr%2Fspaghetti-carbonara.html%2F109396&psig=AOvVaw1urgPtcPBnJrUCaHdVEhAH&ust=1741807887249000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCPClspbigowDFQAAAAAdAAAAABAE",
         difficulty = "Medium",
         time = "25 mins",

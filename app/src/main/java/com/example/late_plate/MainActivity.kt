@@ -12,9 +12,11 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import com.example.late_plate.dummy.dummyRecipes
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.components.CustomFloatingActionButton
+import com.example.late_plate.ui.screens.home.HomeScreen
 import com.example.late_plate.ui.screens.login.LoginScreen
 import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.ui.theme.Late_plateTheme
@@ -30,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     bottomBar = { CustomBottomNavigationBar(modifier = Modifier) },
                     ) {
                     innerPadding ->
-                    RecipeScreen(modifier = Modifier.padding(innerPadding), data = dummyRecipes.first())
+                    RecipeScreen(modifier = Modifier.padding(innerPadding), recipe = dummyRecipes.first())
                 }
             }
         }

@@ -1,4 +1,5 @@
 package com.example.late_plate.ui.screens.recipe
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +44,7 @@ import com.example.late_plate.ui.components.OnlineImageCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(modifier: Modifier, data: Recipe) {
+fun RecipeScreen(modifier: Modifier, recipe: Recipe) {
     var saved by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -51,7 +52,7 @@ fun RecipeScreen(modifier: Modifier, data: Recipe) {
             .statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
-            title = { Text(data.title, color = MaterialTheme.colorScheme.onPrimary) },
+            title = { Text(recipe.title, color = MaterialTheme.colorScheme.onPrimary) },
             navigationIcon = {
                 IconButton(onClick = { }) {
                     Icon(
@@ -63,11 +64,11 @@ fun RecipeScreen(modifier: Modifier, data: Recipe) {
 
             },
             actions = {
-                IconButton(onClick = {saved=!saved}) {
+                IconButton(onClick = { saved = !saved }) {
                     Icon(
-                        imageVector =if(saved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                        imageVector = if (saved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                         contentDescription = null,
-                        tint =if(saved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+                        tint = if (saved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
                     )
                 }
             },
@@ -76,7 +77,7 @@ fun RecipeScreen(modifier: Modifier, data: Recipe) {
             )
         )
         OnlineImageCard(
-            imageUrl = data.imageUrl, modifier = Modifier
+            imageUrl = recipe.imageUrl, modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
                 .padding(horizontal = 16.dp)
@@ -84,39 +85,57 @@ fun RecipeScreen(modifier: Modifier, data: Recipe) {
 
         CustomCard(modifier = Modifier.offset(y = (-24).dp), contentPadding = 8) {
             Row(modifier = Modifier.padding(horizontal = 24.dp)) {
-                Row {
 
-                    Icon(
-                        imageVector = Icons.Outlined.Timer,
-                        contentDescription = null, tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(data.time, color = MaterialTheme.colorScheme.onPrimary)
-                }
+                Icon(
+                    imageVector = Icons.Outlined.Timer,
+                    contentDescription = null, tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(recipe.time, color = MaterialTheme.colorScheme.onPrimary)
+
                 Spacer(modifier = Modifier.width(16.dp))
-                Row {
-                    Icon(
-                        imageVector = Icons.Outlined.Speed,
-                        contentDescription = null, tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(data.difficulty, color = MaterialTheme.colorScheme.onPrimary)
-                }
+
+                Icon(
+                    imageVector = Icons.Outlined.Speed,
+                    contentDescription = null, tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(recipe.difficulty, color = MaterialTheme.colorScheme.onPrimary)
+
             }
         }
-        Column (modifier=Modifier.fillMaxSize().padding(bottom = 16.dp).clip(shape = RoundedCornerShape(16.dp)).verticalScroll(
-            rememberScrollState()
-        ), verticalArrangement = Arrangement.spacedBy(16.dp)){
-            ExpandableCard (title = "description", content = data.description, modifier = Modifier.padding(horizontal = 16.dp))
-            ExpandableCard (title = "ingredients", content = data.ingredients.toBulletList(), modifier = Modifier.padding(horizontal = 16.dp))
-            ExpandableCard (title = "instructions", content = data.steps.toBulletList(), modifier = Modifier.padding(horizontal = 16.dp))
-            Spacer(modifier=Modifier.height(86.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 16.dp)
+                .clip(shape = RoundedCornerShape(16.dp))
+                .verticalScroll(
+                    rememberScrollState()
+                ), verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ExpandableCard(
+                title = "description",
+                content = recipe.description,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            ExpandableCard(
+                title = "ingredients",
+                content = recipe.ingredients.toBulletList(),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            ExpandableCard(
+                title = "instructions",
+                content = recipe.steps.toBulletList(),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(86.dp))
         }
 
 
     }
 
 }
+
 fun List<String>.toBulletList(): String {
     return joinToString("\n") { "• $it" }
 }

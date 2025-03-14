@@ -1,5 +1,8 @@
 package com.example.late_plate.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -7,12 +10,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Fastfood
@@ -23,7 +29,10 @@ import androidx.compose.material.icons.outlined.Fastfood
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material.icons.outlined.PlayCircleOutline
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,21 +46,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -59,17 +56,24 @@ import androidx.compose.ui.unit.sp
 fun CustomBottomNavigationBar(modifier: Modifier = Modifier) {
     var selected by remember { mutableStateOf("Home") }
 
-    val dockRadius = with(LocalDensity.current) { 38.dp.toPx() }
-    Box(contentAlignment = Alignment.Center) {
-        BottomAppBar(
-            modifier = modifier
-                .clip(BottomNavShape(dockRadius))
-                .height(86.dp),
-            containerColor = lerp(MaterialTheme.colorScheme.background, Color.Black, 0.03f),
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier
+            .height(108.dp)
+            .shadow(8.dp, shape = RoundedCornerShape(topEnd = 12.dp , topStart = 12.dp))
 
-            ) {
+    ) {
+        Card(
+            modifier = Modifier
+                .height(86.dp),
+            shape = RoundedCornerShape(topEnd = 12.dp , topStart = 12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
@@ -85,8 +89,8 @@ fun CustomBottomNavigationBar(modifier: Modifier = Modifier) {
                     isSelected = selected == "Inventory",
                     onClick = { selected = "Inventory" }
                 )
-                Spacer(modifier = Modifier.width(68.dp))
 
+                Spacer(modifier = Modifier.width(56.dp))
                 BottomNavItem(
                     icons = Icons.Filled.Bookmark to Icons.Outlined.BookmarkBorder,
                     label = "Saved",
@@ -102,11 +106,12 @@ fun CustomBottomNavigationBar(modifier: Modifier = Modifier) {
 
         }
         CustomFloatingActionButton(
-            icon = Icons.Outlined.PlayArrow,
+            icon = Icons.Rounded.PlayArrow,
             behaviour = {},
-            modifier = Modifier.offset(y = (-86).dp)
+            modifier = Modifier
         )
     }
+
 
 }
 
@@ -117,12 +122,20 @@ fun BottomNavItem(
     onClick: () -> Unit,
     isSelected: Boolean = false
 ) {
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .size(height = 48.dp, width = 68.dp)
+            .clip(shape = RoundedCornerShape(16.dp))
+            .background(
+                if (isSelected) lerp(
+                    MaterialTheme.colorScheme.background,
+                    Color.Black, 0.04f
+                ) else Color.Transparent
+            )
             .clickable(
-                interactionSource = remember { MutableInteractionSource() }, // Explicitly provide interactionSource
+                interactionSource = remember { MutableInteractionSource() },
                 indication = null,
             ) { onClick() }) {
         Icon(
@@ -140,20 +153,23 @@ fun BottomNavItem(
 
 @Composable
 fun CustomFloatingActionButton(
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     icon: ImageVector,
     behaviour: () -> Unit
 ) {
     FloatingActionButton(
         onClick = behaviour,
-        shape = CircleShape,
+        shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.colorScheme.primary,
         modifier = modifier
-            .offset(y = (48).dp)
-            .shadow(8.dp, shape = CircleShape, clip = false)
+            .offset(y = (-48).dp)
+            .size(56.dp)
+            .shadow(8.dp, shape = RoundedCornerShape(12.dp))
+
 
     ) {
         Icon(
+            modifier = Modifier.fillMaxSize().padding(8.dp),
             imageVector = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onPrimary
@@ -161,85 +177,5 @@ fun CustomFloatingActionButton(
     }
 }
 
-class BottomNavShape(
-    private val dockRadius: Float,
-) : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Outline {
-        val baseRect = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    Rect(Offset.Zero, Offset(size.width, size.height)),
 
-                    ),
-            )
-        }
-
-        val rect1 = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    Rect(Offset.Zero, Offset(size.width / 2 - dockRadius + 4f, size.height)),
-
-                    ),
-            )
-        }
-
-        val rect1A = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    Rect(Offset.Zero, Offset(size.width / 2 - dockRadius + 4f, size.height)),
-
-                    topRight = CornerRadius(32f, 32f),
-                ),
-            )
-        }
-
-        val rect1B = Path.combine(PathOperation.Difference, rect1, rect1A)
-
-        val rect2 = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    Rect(
-                        Offset(size.width / 2 + dockRadius - 4f, 0f),
-                        Offset(size.width, size.height)
-                    ),
-
-                    ),
-            )
-        }
-
-        val rect2A = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    Rect(
-                        Offset(size.width / 2 + dockRadius - 4f, 0f),
-                        Offset(size.width, size.height)
-                    ),
-
-                    topLeft = CornerRadius(32f, 32f),
-                ),
-            )
-        }
-
-        val rect2B = Path.combine(PathOperation.Difference, rect2, rect2A)
-
-        val circle = Path().apply {
-            addOval(
-                Rect(
-                    Offset(size.width / 2 - dockRadius, -dockRadius),
-                    Offset(size.width / 2 + dockRadius, dockRadius),
-                ),
-            )
-        }
-
-        val path1 = Path.combine(PathOperation.Difference, baseRect, circle)
-        val path2 = Path.combine(PathOperation.Difference, path1, rect1B)
-        val path = Path.combine(PathOperation.Difference, path2, rect2B)
-
-        return Outline.Generic(path)
-    }
-}
 
