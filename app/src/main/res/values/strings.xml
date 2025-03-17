@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">late_plate</string>
+    <string name="app_name">Late Plate</string>
+    <string name="slogan">"\"Your plate is never late\" "</string>
 </resources>
