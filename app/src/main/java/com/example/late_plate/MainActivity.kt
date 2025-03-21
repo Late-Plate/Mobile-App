@@ -19,6 +19,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.late_plate.dummy.dummyRecipes
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.components.CustomFloatingActionButton
+import com.example.late_plate.ui.screens.assistant.RecipeAssistantScreen
 import com.example.late_plate.ui.screens.home.HomeScreen
 import com.example.late_plate.ui.screens.login.LoginScreen
 import com.example.late_plate.ui.screens.recipe.RecipeScreen
@@ -36,8 +37,12 @@ class MainActivity : ComponentActivity() {
                     bottomBar = { CustomBottomNavigationBar(modifier = Modifier) },
                     ) {
                     innerPadding ->
-                    RecipeScreen(modifier = Modifier.padding(innerPadding), recipe = dummyRecipes.first())
+                    RecipeAssistantScreen(modifier = Modifier.padding(innerPadding), dummyRecipes.first())
+//                      InventoryScreen(modifier = Modifier.padding(innerPadding))
+//                    RecipeScreen(modifier = Modifier.padding(innerPadding), recipe = dummyRecipes.first())
+
                 }
+
             }
         }
     }
