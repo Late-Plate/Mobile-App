@@ -1,16 +1,17 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
-
 android {
     namespace = "com.example.late_plate"
     compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.late_plate"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -38,7 +39,9 @@ android {
         compose = true
     }
 }
-
+configurations.all {
+    exclude(group = "com.google.ai.edge.litert")
+}
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -50,6 +53,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.core)
+    implementation(libs.litert)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -60,5 +65,16 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
-    implementation (libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.camera.core.v141)
+    implementation(libs.androidx.camera.camera2.v141)
+    implementation(libs.androidx.camera.lifecycle.v141)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view.v141)
+    implementation(libs.androidx.camera.extensions)
+    implementation (libs.tensorflow.lite)
+    implementation (libs.tensorflow.lite.support)
+    implementation(libs.tensorflow.lite.task.vision.v044)
+    implementation(libs.tensorflow.lite.gpu.delegate.plugin)
+    implementation(libs.tensorflow.lite.gpu)
 }
