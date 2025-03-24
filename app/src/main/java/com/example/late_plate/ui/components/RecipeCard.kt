@@ -34,7 +34,7 @@ fun RecipeCard(modifier: Modifier = Modifier, recipe: Recipe, onClick: () -> Uni
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.size(height = 156.dp, width = 178.dp)
+        modifier = modifier.size(height = 130.dp, width = 178.dp)
     ) {
 
         CustomCard(
@@ -59,38 +59,38 @@ fun RecipeCard(modifier: Modifier = Modifier, recipe: Recipe, onClick: () -> Uni
                     textAlign = TextAlign.Center, modifier = Modifier.weight(1f)
                 )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Timer,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        recipe.time,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 12.sp
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Icon(
-                        imageVector = Icons.Outlined.Speed,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        recipe.difficulty,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 12.sp
-                    )
-
-                }
+//                Row(
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.Center,
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Outlined.Timer,
+//                        contentDescription = null,
+//                        tint = MaterialTheme.colorScheme.primary,
+//                        modifier = Modifier.size(16.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text(
+//                        recipe.time,
+//                        color = MaterialTheme.colorScheme.onPrimary,
+//                        fontSize = 12.sp
+//                    )
+//                    Spacer(modifier = Modifier.width(16.dp))
+//                    Icon(
+//                        imageVector = Icons.Outlined.Speed,
+//                        contentDescription = null,
+//                        tint = MaterialTheme.colorScheme.primary,
+//                        modifier = Modifier.size(16.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text(
+//                        recipe.difficulty,
+//                        color = MaterialTheme.colorScheme.onPrimary,
+//                        fontSize = 12.sp
+//                    )
+//
+//                }
 
             }
         }

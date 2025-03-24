@@ -39,41 +39,41 @@ fun RecommendationCard(modifier: Modifier = Modifier,recipe: Recipe,onClick:(()-
                     textAlign = TextAlign.Start
                 )
                 Text(
-                    text = recipe.description,
+                    text = recipe.steps.toString(),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 4.dp).weight(1f)
+                    modifier = Modifier.padding(top = 4.dp)
                     , overflow = TextOverflow.Ellipsis
                     , maxLines = 4, lineHeight = 16.sp
-                )
-                Row(modifier=Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Outlined.Timer,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        recipe.time,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Icon(
-                        imageVector = Icons.Outlined.Speed,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        recipe.difficulty,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 14.sp
-                    )
-
-                }
+             )
+//                Row(modifier=Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
+//                    Icon(
+//                        imageVector = Icons.Outlined.Timer,
+//                        contentDescription = null,
+//                        tint = MaterialTheme.colorScheme.primary,
+//                        modifier = Modifier.size(18.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text(
+//                        recipe.time,
+//                        color = MaterialTheme.colorScheme.onPrimary,
+//                        fontSize = 14.sp
+//                    )
+//                    Spacer(modifier = Modifier.width(16.dp))
+//                    Icon(
+//                        imageVector = Icons.Outlined.Speed,
+//                        contentDescription = null,
+//                        tint = MaterialTheme.colorScheme.primary,
+//                        modifier = Modifier.size(18.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text(
+//                        recipe.difficulty,
+//                        color = MaterialTheme.colorScheme.onPrimary,
+//                        fontSize = 14.sp
+//                    )
+//
+//                }
             }
             Spacer(modifier=Modifier.width(16.dp))
             OnlineImageCard(imageUrl = recipe.imageUrl, modifier = Modifier.fillMaxHeight().width(136.dp), onClick = onClick)

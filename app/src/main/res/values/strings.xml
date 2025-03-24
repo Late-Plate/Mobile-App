@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Late Plate</string>
     <string name="slogan">"\"Your plate is never late\" "</string>
+    <string name="welcome_text">Hey,Tax$</string>
 </resources>
