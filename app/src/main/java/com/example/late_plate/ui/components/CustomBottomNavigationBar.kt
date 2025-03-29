@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun CustomBottomNavigationBar(modifier: Modifier = Modifier) {
+fun CustomBottomNavigationBar(modifier: Modifier = Modifier, onClick: () -> Unit) {
     var selected by remember { mutableStateOf("Home") }
 
     Box(
@@ -107,7 +107,7 @@ fun CustomBottomNavigationBar(modifier: Modifier = Modifier) {
         }
         CustomFloatingActionButton(
             icon = Icons.Rounded.PlayArrow,
-            behaviour = {},
+            behaviour = {onClick()},
             modifier = Modifier
         )
     }

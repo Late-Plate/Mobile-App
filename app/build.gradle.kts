@@ -44,6 +44,9 @@ val ktor_version: String by project
 val coroutines_version: String by project
 val koin_version: String by project
 dependencies {
+
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.gson)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -52,6 +55,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation (libs.androidx.material.v154)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.credentials)

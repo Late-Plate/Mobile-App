@@ -30,7 +30,7 @@ val dummyRecipes = listOf(
         ),
         steps = listOf(
             "Preheat oven to 475°F (245°C).",
-            "In a bowl, combine warm water, sugar, and yeast. Let sit for 5 minutes.",
+            "In a bowl, combine warm water, sugar, and yeast. Let sit for 1 minutes.",
             "Add flour, salt, and olive oil. Knead into dough and let rise for 1 hour.",
             "Roll out dough and spread tomato sauce evenly.",
             "Top with mozzarella cheese and fresh basil.",
