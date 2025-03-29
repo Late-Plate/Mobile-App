@@ -21,6 +21,7 @@ import com.example.late_plate.network.createHttpClient
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.screens.home.App
 import com.example.late_plate.ui.screens.home.HomeScreen
+import com.example.late_plate.ui.screens.recipe_generation.RecipeGenerationScreen
 import com.example.late_plate.ui.theme.Late_plateTheme
 import com.example.late_plate.viewModel.IngredientsViewModel
 import io.ktor.client.engine.okhttp.OkHttp
@@ -44,8 +45,8 @@ class MainActivity : ComponentActivity() {
                     bottomBar = { CustomBottomNavigationBar(modifier = Modifier) },
                     ) {
                     innerPadding ->
-                    App(client = RecipeGenerationClient(createHttpClient(OkHttp.create())) )
-                   // HomeScreen(modifier = Modifier.padding(innerPadding), data = dummyRecipes)
+                   // RecipeGenerationScreen()
+                    HomeScreen(modifier = Modifier.padding(innerPadding), data = dummyRecipes)
 
                 }
             }

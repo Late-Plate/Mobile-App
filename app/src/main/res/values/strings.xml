@@ -2,4 +2,7 @@
     <string name="app_name">Late Plate</string>
     <string name="slogan">"\"Your plate is never late\" "</string>
     <string name="welcome_text">Hey,Tax$</string>
+    <string name="meals">Meals</string>
+    <string name="see_all">see all</string>
+    <string name="what_ingredients_do_you_have">What ingredients do you have?</string>
 </resources>

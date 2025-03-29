@@ -65,7 +65,9 @@ fun HomeScreen(modifier: Modifier = Modifier,data:List<Recipe>) {
         Spacer(modifier=Modifier.height(24.dp))
 
         Row(
-            modifier=Modifier.fillMaxWidth().padding(5.dp),
+            modifier= Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
             horizontalArrangement = Arrangement.SpaceBetween
 
         ) {
@@ -76,7 +78,7 @@ fun HomeScreen(modifier: Modifier = Modifier,data:List<Recipe>) {
             )
             Row {
                 Text(
-                    "see all",
+                    stringResource(R.string.see_all),
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -95,7 +97,7 @@ fun HomeScreen(modifier: Modifier = Modifier,data:List<Recipe>) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "Meals",
+                stringResource(R.string.meals),
                 fontSize = 24.sp,
                 color = MaterialTheme.colorScheme.onPrimary
             )
