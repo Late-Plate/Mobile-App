@@ -35,12 +35,12 @@ import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.view_model.InventoryViewModel
 import androidx.compose.material.ExperimentalMaterialApi
 import com.example.late_plate.ui.components.SwipeToDeleteContainer
-
+import com.example.late_plate.view_model.InventoryPopUpState
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InventoryScreen(modifier : Modifier = Modifier){
+fun InventoryScreen(viewModel: InventoryViewModel, modifier : Modifier = Modifier){
 
     val inventoryViewModel: InventoryViewModel = viewModel()
 
@@ -90,6 +90,7 @@ fun InventoryScreen(modifier : Modifier = Modifier){
                         CustomCard(
                             modifier = Modifier.clickable {
                                 inventoryViewModel.selectItem(item, index)
+                                inventoryViewModel.addOrUpdate = InventoryPopUpState.UPDATE
                                 Log.d("Debug", "${item.title} is clicked")
                             }
                         ) {
@@ -137,36 +138,28 @@ fun InventoryScreen(modifier : Modifier = Modifier){
 
             }
             if (inventoryViewModel.showDialog) {
+
                 Log.d("attempt to update", inventoryViewModel.selectedItem.toString())
                 CustomInventoryPopup(
                     showDialog = inventoryViewModel.showDialog,
                     onDismiss = { inventoryViewModel.closeDialog() },
-                    onConfirm = { index, name, qty, type ->
-                        if (index != null) {
-                            inventoryViewModel.updateItem(index, name, qty, type)
-                            inventoryViewModel.closeDialog()
+                    onConfirm = {name, qty, type ->
+                        if (inventoryViewModel.selectFromNER.value) {
+                            inventoryViewModel.onConfirm(name, qty, type)
                         }
+                        inventoryViewModel.closeDialog()
                     },
                     modifier = Modifier,
                     name = inventoryViewModel.selectedItem?.title.orEmpty(),
                     quantity = inventoryViewModel.selectedItem?.quantity ?: 0f,
                     type = inventoryViewModel.selectedItem?.unitType.orEmpty(),
-                    btnText = "Update",
-                    index = inventoryViewModel.selectedIndex
+                    status = inventoryViewModel.addOrUpdate,
+                    selectNER = inventoryViewModel.selectFromNER
                 )
             }
 
         }
 
-
-
-
     }
 
-
 }
-//@Preview(showBackground = true, name = "inventory preview")
-//@Composable
-//fun InventoryPreview(){
-//    InventoryScreen()
-//}

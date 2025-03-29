@@ -12,12 +12,12 @@ fun AddItemPopup(modifier: Modifier){
         modifier = modifier,
         showDialog = inventoryViewModel.showDialog,
         onDismiss = { inventoryViewModel.closeDialog() },
-        onConfirm = { index, name, qty, type ->
-            if(index == null)
-                inventoryViewModel.addItem(name, qty, type) // Pass ViewModel function
+        onConfirm = {name, qty, type ->
+            inventoryViewModel.onConfirm(name, qty, type)
             inventoryViewModel.closeDialog()
         },
-        height = 0.46f,
-        index = null
+        height = 0.5f,
+        status = inventoryViewModel.addOrUpdate,
+        selectNER = inventoryViewModel.selectFromNER
     )
 }

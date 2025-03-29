@@ -1,6 +1,7 @@
 package com.example.late_plate.ui.screens.inventory
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,8 +9,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -36,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,6 +54,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.late_plate.R
 import com.example.late_plate.ui.components.CustomCard
+import com.example.late_plate.view_model.InventoryPopUpState
+import com.example.late_plate.view_model.loadIngredientsFromJson
 
 
 @Composable
@@ -53,17 +63,19 @@ fun CustomInventoryPopup(
     modifier: Modifier,
     showDialog: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: (Int?, String, Float, String) -> Unit,
-    height: Float = 0.46f,
+    onConfirm: (String, Float, String) -> Unit,
+    height: Float = 0.5f,
     name: String = "",
     quantity: Float = 0f,
     type: String = "kg",
-    btnText: String = "Add",
-    index: Int?
+    status: InventoryPopUpState,
+    selectNER: MutableState<Boolean>,
 ){
     val inputName = remember { mutableStateOf(name) }      // ✅ Correctly declared
     val inputQuantity = remember { mutableStateOf(quantity.toString()) }
     val inputType = remember { mutableStateOf(type) }
+    var selectFromNER = remember { mutableStateOf(selectNER) }
+    val btnText = if(status == InventoryPopUpState.ADD) "Add" else "Update"
 
     if (showDialog){
         Dialog(
@@ -134,11 +146,16 @@ fun CustomInventoryPopup(
                                     )
                                 }
                             }
-                            CustomTextFieldPopup(
-                                input =  inputName,
+                            val ingredientList = loadIngredientsFromJson(LocalContext.current)
+
+                            CustomTextFieldPopupSearch(
+                                input = inputName,
+                                selected = selectFromNER.value,
                                 placeholderText = "Enter item's name",
-                                modifier = Modifier.weight(0.15f),
+                                modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+                                ingredientList = ingredientList
                             )
+
 
                             Row(
                                 modifier = Modifier.weight(0.1f)
@@ -159,20 +176,20 @@ fun CustomInventoryPopup(
                                 }
                             }
                             Row(
-                                modifier = Modifier.weight(0.15f),
+                                modifier = Modifier.weight(0.17f).wrapContentHeight(),
                             ) {
                                 Box(modifier = Modifier.weight(2f)) { // ✅ Wrap in Box to allow proper weight distribution
                                     CustomTextFieldPopup(
                                         input = inputQuantity,
                                         placeholderText = "Enter Quantity",
-                                        modifier = Modifier.fillMaxWidth(), // ✅ Ensure it takes full width inside Box
+                                        modifier = Modifier.wrapContentWidth().wrapContentHeight(), // ✅ Ensure it takes full width inside Box
                                         keyboardType = KeyboardType.Number
                                     )
                                 }
                                 Box(modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()) {
-                                    ComboBox(inputType, modifier = Modifier.fillMaxWidth())
+                                    ComboBox(inputType, modifier = Modifier.wrapContentWidth().wrapContentHeight())
                                 }
                             }
                             HorizontalDivider(
@@ -207,7 +224,7 @@ fun CustomInventoryPopup(
                                 Button(
                                     onClick = {
                                         if(inputName.value.isNotEmpty() && inputQuantity.value.isNotEmpty())
-                                            onConfirm(index, inputName.value, inputQuantity.value.toFloat(), inputType.value)
+                                            onConfirm(inputName.value, inputQuantity.value.toFloat(), inputType.value)
 
                                     },
                                     shape = RoundedCornerShape(34),
@@ -331,8 +348,74 @@ fun CustomTextFieldPopup(
     )
 }
 
+@Composable
+fun CustomTextFieldPopupSearch(
+    input: MutableState<String>,
+    selected: MutableState<Boolean>,
+    placeholderText: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    ingredientList: List<String> // List of valid ingredients
+) {
+    var filteredIngredients by remember { mutableStateOf(emptyList<String>()) }
+    var expanded by remember { mutableStateOf(false) }
 
+    Column {
+        OutlinedTextField(
+            value = input.value,
+            onValueChange = { newValue ->
+                selected.value = false
+                input.value = newValue
+                filteredIngredients = if (newValue.isNotEmpty()) {
+                    ingredientList.filter { it.contains(newValue, ignoreCase = true) }
+                        .sortedBy { it.equals(newValue, ignoreCase = true).not() } // Exact matches first
+                } else {
+                    emptyList()
+                }
+                expanded = filteredIngredients.isNotEmpty()
+            },
+            placeholder = { Text(text = placeholderText, fontSize = 14.sp) },
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                errorBorderColor = MaterialTheme.colorScheme.error
+            ),
+            modifier = modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType),
+            keyboardActions = KeyboardActions(
+                onDone = { expanded = false }
+            ),
+            singleLine = true
+        )
 
-
+        if (expanded) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp) // Set max height for scrolling
+                    .background(MaterialTheme.colorScheme.surface)
+                    .clickable { expanded = false } // Dismiss on click outside
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(filteredIngredients) { ingredient ->
+                        DropdownMenuItem(
+                            text = { Text(ingredient) },
+                            onClick = {
+                                input.value = ingredient
+                                selected.value = true
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 

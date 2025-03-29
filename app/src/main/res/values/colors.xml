@@ -10,4 +10,5 @@
     <color name="grey_white">#D4D4D4</color>
     <color name="cancel_btn_color">#595959</color>
     <color name="transparent">#00F4F4F4</color>
+    <color name="primary">#FFF4661E</color>
 </resources>
