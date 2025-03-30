@@ -64,6 +64,7 @@ fun CustomInventoryPopup(
     showDialog: Boolean,
     onDismiss: () -> Unit,
     onConfirm: (String, Float, String) -> Unit,
+    onEdit: (String) -> List<String>,
     height: Float = 0.5f,
     name: String = "",
     quantity: Float = 0f,
@@ -146,17 +147,14 @@ fun CustomInventoryPopup(
                                     )
                                 }
                             }
-                            val ingredientList = loadIngredientsFromJson(LocalContext.current)
-
                             CustomTextFieldPopupSearch(
                                 input = inputName,
                                 selected = selectFromNER.value,
                                 placeholderText = "Enter item's name",
                                 modifier = Modifier.wrapContentWidth().wrapContentHeight(),
-                                ingredientList = ingredientList
+                                onEdit = onEdit
                             )
-
-
+                            
                             Row(
                                 modifier = Modifier.weight(0.1f)
                             ) {
@@ -355,7 +353,7 @@ fun CustomTextFieldPopupSearch(
     placeholderText: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
-    ingredientList: List<String> // List of valid ingredients
+    onEdit: (String) -> List<String>
 ) {
     var filteredIngredients by remember { mutableStateOf(emptyList<String>()) }
     var expanded by remember { mutableStateOf(false) }
@@ -366,12 +364,7 @@ fun CustomTextFieldPopupSearch(
             onValueChange = { newValue ->
                 selected.value = false
                 input.value = newValue
-                filteredIngredients = if (newValue.isNotEmpty()) {
-                    ingredientList.filter { it.contains(newValue, ignoreCase = true) }
-                        .sortedBy { it.equals(newValue, ignoreCase = true).not() } // Exact matches first
-                } else {
-                    emptyList()
-                }
+                filteredIngredients = onEdit(newValue)
                 expanded = filteredIngredients.isNotEmpty()
             },
             placeholder = { Text(text = placeholderText, fontSize = 14.sp) },

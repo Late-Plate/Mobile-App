@@ -29,6 +29,15 @@ class IngredientsViewModel(application: Application): AndroidViewModel(applicati
         }
     }
 
+    fun getMatchingIngredients(newValue: String): List<String>{
+        return if (newValue.isNotEmpty()) {
+            _ingredientsList.value.filter { it.contains(newValue, ignoreCase = true) }
+                .sortedBy { it.equals(newValue, ignoreCase = true).not() } // Exact matches first
+        } else {
+            emptyList()
+        }
+    }
+
     private fun readJsonFile(fileName: String): String {
         return getApplication<Application>().assets.open(fileName).bufferedReader().use { it.readText() }
 

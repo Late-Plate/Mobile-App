@@ -28,7 +28,9 @@ import com.example.late_plate.network.RecipeGenerationClient
 import com.example.late_plate.network.createHttpClient
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.components.CustomFloatingActionButton
+import com.example.late_plate.ui.screens.assistant.RecipeAssistantScreen
 import com.example.late_plate.ui.screens.home.HomeScreen
+import com.example.late_plate.ui.screens.inventory.InventoryScreen
 import com.example.late_plate.ui.screens.login.LoginScreen
 import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.ui.theme.Late_plateTheme
@@ -65,8 +67,13 @@ class MainActivity : ComponentActivity() {
                     ) {
                     innerPadding ->
                    // RecipeGenerationScreen()
-                    HomeScreen(modifier = Modifier.padding(innerPadding), data = dummyRecipes)
-
+//                    HomeScreen(modifier = Modifier.padding(innerPadding), data = dummyRecipes)
+//                    RecipeAssistantScreen(modifier = Modifier.padding(innerPadding), dummyRecipes.first())
+                    InventoryScreen(
+                        inventoryViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                        onEdit = {newVal -> ingredientsViewModel.getMatchingIngredients(newVal)}
+                    )
                 }
             }
         }

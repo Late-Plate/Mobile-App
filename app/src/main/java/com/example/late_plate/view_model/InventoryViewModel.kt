@@ -101,12 +101,14 @@ class InventoryViewModel(
         selectedItem = item
         selectedIndex = index
         showDialog = true
+        selectFromNER.value = true
     }
 
     fun closeDialog() {
         showDialog = false
         selectedItem = null
         selectedIndex = null
+        selectFromNER.value = false
     }
 
     fun deleteItem(item: InventoryItem){
@@ -116,7 +118,6 @@ class InventoryViewModel(
     fun updateItem(newName: String, newQuantity: Float, newType: String) {
         if(!selectFromNER.value) return
         if(!validateInput(newName, newQuantity)) return
-        if (lookForSimilarItem(newName, newQuantity, newType)) return
         if (selectedIndex in _inventoryItems.indices) {
             val oldId = _inventoryItems[selectedIndex!!].id
             _inventoryItems.removeAt(selectedIndex!!)
@@ -135,7 +136,7 @@ class InventoryViewModel(
 
     private fun validateInput(name: String, quantity: Float): Boolean{
         if(quantity <= 0) return false
-        if(!ingredientRegex.containsMatchIn(name.toLowerCase())) return false
+        if(!ingredientRegex.containsMatchIn(name.lowercase())) return false
         return true
     }
 

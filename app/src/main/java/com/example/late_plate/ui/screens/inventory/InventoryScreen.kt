@@ -40,7 +40,11 @@ import com.example.late_plate.view_model.InventoryPopUpState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
-fun InventoryScreen(viewModel: InventoryViewModel, modifier : Modifier = Modifier){
+fun InventoryScreen(
+    viewModel: InventoryViewModel,
+    modifier : Modifier = Modifier,
+    onEdit: (String) -> List<String>
+){
 
     val inventoryViewModel: InventoryViewModel = viewModel()
 
@@ -138,7 +142,6 @@ fun InventoryScreen(viewModel: InventoryViewModel, modifier : Modifier = Modifie
 
             }
             if (inventoryViewModel.showDialog) {
-
                 Log.d("attempt to update", inventoryViewModel.selectedItem.toString())
                 CustomInventoryPopup(
                     showDialog = inventoryViewModel.showDialog,
@@ -154,7 +157,8 @@ fun InventoryScreen(viewModel: InventoryViewModel, modifier : Modifier = Modifie
                     quantity = inventoryViewModel.selectedItem?.quantity ?: 0f,
                     type = inventoryViewModel.selectedItem?.unitType.orEmpty(),
                     status = inventoryViewModel.addOrUpdate,
-                    selectNER = inventoryViewModel.selectFromNER
+                    selectNER = inventoryViewModel.selectFromNER,
+                    onEdit = onEdit
                 )
             }
 
