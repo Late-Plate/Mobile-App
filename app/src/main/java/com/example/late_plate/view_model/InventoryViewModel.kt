@@ -75,18 +75,18 @@ class InventoryViewModel(
         return newId
     }
 
-    fun onConfirm(name: String, quantity: Float, type: String){
-        if(selectedItem == null)
-            addItem(name, quantity, type)
+    fun onConfirm(name: String, quantity: Float, type: String): String {
+        if (selectedItem == null)
+            return addItem(name, quantity, type)
         else
-            updateItem(name, quantity, type)
+            return updateItem(name, quantity, type)
     }
 
-    fun addItem(name: String, quantity: Float, type: String) {
-        if(!selectFromNER.value) return
-        if(!validateInput(name, quantity)) return
+    fun addItem(name: String, quantity: Float, type: String): String {
+        if(!selectFromNER.value) return "FAIL"
+        if(!validateInput(name, quantity)) return "NOT VALID"
 
-        if(lookForSimilarItem(name, quantity, type)) return
+        if(lookForSimilarItem(name, quantity, type)) return "SIMILAR"
 
         val newId = generateUniqueId()
         val newItem = InventoryItem(id = newId, title = name, quantity, type)
@@ -95,6 +95,7 @@ class InventoryViewModel(
         _idsSet.add(newId)
 
         saveInventory()
+        return "SUCCESS"
     }
 
     fun selectItem(item: InventoryItem, index: Int) {
@@ -115,9 +116,9 @@ class InventoryViewModel(
         _inventoryItems.remove(item)
         saveInventory()
     }
-    fun updateItem(newName: String, newQuantity: Float, newType: String) {
-        if(!selectFromNER.value) return
-        if(!validateInput(newName, newQuantity)) return
+    fun updateItem(newName: String, newQuantity: Float, newType: String): String {
+        if(!selectFromNER.value) return "NULL"
+        if(!validateInput(newName, newQuantity)) return "NOT VALID"
         if (selectedIndex in _inventoryItems.indices) {
             val oldId = _inventoryItems[selectedIndex!!].id
             _inventoryItems.removeAt(selectedIndex!!)
@@ -127,6 +128,7 @@ class InventoryViewModel(
             saveInventory()
 
         }
+        return "SUCCESS"
     }
     private fun saveInventory() {
         viewModelScope.launch {
@@ -176,9 +178,3 @@ data class InventoryItem(
     val quantity: Float,
     val unitType: String
 )
-
-fun loadIngredientsFromJson(context: Context): List<String> {
-    val jsonString = context.assets.open("unique_ner.json").bufferedReader().use { it.readText() }
-    val jsonArray = JSONArray(jsonString)
-    return List(jsonArray.length()) { jsonArray.getString(it) }
-}

@@ -55,7 +55,6 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.late_plate.R
 import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.view_model.InventoryPopUpState
-import com.example.late_plate.view_model.loadIngredientsFromJson
 
 
 @Composable
@@ -72,7 +71,7 @@ fun CustomInventoryPopup(
     status: InventoryPopUpState,
     selectNER: MutableState<Boolean>,
 ){
-    val inputName = remember { mutableStateOf(name) }      // ✅ Correctly declared
+    val inputName = remember { mutableStateOf(name) }
     val inputQuantity = remember { mutableStateOf(quantity.toString()) }
     val inputType = remember { mutableStateOf(type) }
     var selectFromNER = remember { mutableStateOf(selectNER) }
@@ -152,7 +151,8 @@ fun CustomInventoryPopup(
                                 selected = selectFromNER.value,
                                 placeholderText = "Enter item's name",
                                 modifier = Modifier.wrapContentWidth().wrapContentHeight(),
-                                onEdit = onEdit
+                                onEdit = onEdit,
+                                readOnly = status == InventoryPopUpState.UPDATE
                             )
                             
                             Row(
@@ -323,7 +323,7 @@ fun CustomTextFieldPopup(
     input: MutableState<String>,
     placeholderText: String,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
 ) {
     OutlinedTextField(
         value = input.value,
@@ -342,7 +342,7 @@ fun CustomTextFieldPopup(
             .padding(4.dp),
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = keyboardType  // ✅ Correct usage
-        )
+        ),
     )
 }
 
@@ -353,7 +353,8 @@ fun CustomTextFieldPopupSearch(
     placeholderText: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
-    onEdit: (String) -> List<String>
+    onEdit: (String) -> List<String>,
+    readOnly: Boolean = false
 ) {
     var filteredIngredients by remember { mutableStateOf(emptyList<String>()) }
     var expanded by remember { mutableStateOf(false) }
@@ -381,7 +382,9 @@ fun CustomTextFieldPopupSearch(
             keyboardActions = KeyboardActions(
                 onDone = { expanded = false }
             ),
-            singleLine = true
+            singleLine = true,
+            readOnly = readOnly
+
         )
 
         if (expanded) {
