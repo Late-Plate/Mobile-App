@@ -109,9 +109,8 @@ fun CustomBottomNavigationBar(fabState: FABState) {
 
         }
         CustomFloatingActionButton(
-            icon = Icons.Rounded.PlayArrow,
-            behaviour = {},
-            modifier = Modifier
+            modifier = Modifier,
+            fabState = fabState
         )
     }
 

@@ -32,26 +32,36 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         compose = true
     }
-}
-val ktor_version: String by project
 
+    // To avoid deprecated warnings, you can add packaging options here
+    packagingOptions {
+        exclude("META-INF/**")  // Exclude unwanted files from dependencies
+    }
+}
+
+val ktor_version: String by project
 val coroutines_version: String by project
 val koin_version: String by project
-configurations.all {
-    exclude(group = "com.google.ai.edge.litert")
-}
-dependencies {
 
+configurations.all {
+    exclude(group = "com.google.ai.edge.litert")  // Exclude problematic dependency
+}
+
+dependencies {
+    // Core and Lifecycle dependencies
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.gson)
     implementation(libs.androidx.core.ktx)
@@ -62,37 +72,26 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation (libs.androidx.material.v154)
+    implementation(libs.androidx.material.v154)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.core)
-    implementation(libs.litert)
+
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.credentials)
 
-    // Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
-    // UI and Icons
-    implementation(libs.androidx.material.icons.extended)
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-    implementation(libs.androidx.navigation.compose)
+    // CameraX Dependencies (ensure latest version)
     implementation(libs.androidx.camera.core.v141)
     implementation(libs.androidx.camera.camera2.v141)
     implementation(libs.androidx.camera.lifecycle.v141)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.view.v141)
     implementation(libs.androidx.camera.extensions)
+
+    // TensorFlow Lite (ensure latest version)
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.support)
     implementation(libs.tensorflow.lite.gpu.delegate.plugin)
     implementation(libs.tensorflow.lite.gpu)
+    // Navigation and Compose
     implementation(libs.androidx.navigation.compose)
 
     // JSON Handling
@@ -107,20 +106,38 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
 
     // KotlinX Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
-    //DI
+
+    // Dependency Injection (Hilt and Koin)
     implementation("com.google.dagger:hilt-android:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+
     // Koin for Dependency Injection
     implementation("io.insert-koin:koin-android:$koin_version")
-    //navigation
+
+    // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // UI and Icons
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
+
 kapt {
     correctErrorTypes = true
 }
