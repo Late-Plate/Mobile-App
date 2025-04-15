@@ -100,6 +100,8 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     // Koin for Dependency Injection
     implementation("io.insert-koin:koin-android:$koin_version")
+    //navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 }
 kapt {
     correctErrorTypes = true
