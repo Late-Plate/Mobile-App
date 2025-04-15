@@ -1,4 +1,4 @@
-package com.example.late_plate.view_model
+package com.example.late_plate.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

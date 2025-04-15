@@ -23,9 +23,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.late_plate.dummy.Recipe
+import com.example.late_plate.network.RecipeResponse
 
 @Composable
-fun RecommendationCard(modifier: Modifier = Modifier,recipe: Recipe,onClick:(()->Unit)?=null) {
+fun RecommendationCard(modifier: Modifier = Modifier, recipe: RecipeResponse, onClick:(()->Unit)?=null) {
     CustomCard (modifier=Modifier.fillMaxWidth().height(156.dp), onClick = onClick){
         Row (modifier=Modifier.fillMaxWidth()) {
             Column (modifier=Modifier.weight(1f)){
@@ -39,7 +40,7 @@ fun RecommendationCard(modifier: Modifier = Modifier,recipe: Recipe,onClick:(()-
                     textAlign = TextAlign.Start
                 )
                 Text(
-                    text = recipe.steps.toString(),
+                    text = recipe.directions.toString(),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(top = 4.dp)
@@ -76,7 +77,7 @@ fun RecommendationCard(modifier: Modifier = Modifier,recipe: Recipe,onClick:(()-
 //                }
             }
             Spacer(modifier=Modifier.width(16.dp))
-            OnlineImageCard(imageUrl = recipe.imageUrl, modifier = Modifier.fillMaxHeight().width(136.dp), onClick = onClick)
+            OnlineImageCard(imageUrl = "", modifier = Modifier.fillMaxHeight().width(136.dp), onClick = onClick)
         }
     }
 

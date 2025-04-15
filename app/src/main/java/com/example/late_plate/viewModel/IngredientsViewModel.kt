@@ -2,6 +2,7 @@ package com.example.late_plate.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -13,7 +14,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.google.gson.Gson
-class IngredientsViewModel(application: Application): AndroidViewModel(application)  {
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class IngredientsViewModel @Inject constructor(val application: Application): ViewModel()  {
     private val _ingredientsList = MutableStateFlow<List<String>>(emptyList())
     val ingredientsList=_ingredientsList.asStateFlow()
 
@@ -23,7 +28,7 @@ class IngredientsViewModel(application: Application): AndroidViewModel(applicati
 
     private fun loadJson() {
         viewModelScope.launch (Dispatchers.IO){
-            val jsonString = readJsonFile("ingredients.json")
+            val jsonString = readJsonFile("unique_ner.json")
             val words = parseJsonList(jsonString)
             _ingredientsList.value = words
         }
@@ -39,7 +44,7 @@ class IngredientsViewModel(application: Application): AndroidViewModel(applicati
     }
 
     private fun readJsonFile(fileName: String): String {
-        return getApplication<Application>().assets.open(fileName).bufferedReader().use { it.readText() }
+        return application.assets.open(fileName).bufferedReader().use { it.readText() }
 
     }
     private fun parseJsonList(jsonString: String): List<String> {

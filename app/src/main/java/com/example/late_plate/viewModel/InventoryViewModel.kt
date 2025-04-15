@@ -1,6 +1,5 @@
-package com.example.late_plate.view_model
+package com.example.late_plate.viewModel
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -9,11 +8,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.late_plate.data.InventoryDataStore
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.json.JSONArray
+import javax.inject.Inject
 
-class InventoryViewModel(
+@HiltViewModel
+class InventoryViewModel @Inject constructor(
     private val dataStore: InventoryDataStore
 ) : ViewModel(){
     private val _inventoryItems = mutableStateListOf<InventoryItem>()

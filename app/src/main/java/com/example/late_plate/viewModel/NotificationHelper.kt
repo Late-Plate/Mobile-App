@@ -1,4 +1,4 @@
-package com.example.late_plate.view_model
+package com.example.late_plate.viewModel
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

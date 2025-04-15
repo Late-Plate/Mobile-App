@@ -28,9 +28,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.late_plate.dummy.Recipe
+import com.example.late_plate.network.RecipeResponse
 
 @Composable
-fun RecipeCard(modifier: Modifier = Modifier, recipe: Recipe, onClick: () -> Unit) {
+fun RecipeCard(modifier: Modifier = Modifier, recipe: RecipeResponse, onClick: () -> Unit) {
 
     Box(
         contentAlignment = Alignment.Center,
@@ -95,7 +96,7 @@ fun RecipeCard(modifier: Modifier = Modifier, recipe: Recipe, onClick: () -> Uni
             }
         }
         OnlineImageCard(
-            imageUrl = recipe.imageUrl,
+            imageUrl = "",
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .size(height = 76.dp, width = 108.dp)

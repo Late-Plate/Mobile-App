@@ -8,10 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,29 +15,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.late_plate.data.InventoryDataStore
 import com.example.late_plate.dummy.dummyRecipes
 import com.example.late_plate.network.RecipeGenerationClient
-import com.example.late_plate.network.createHttpClient
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
-import com.example.late_plate.ui.components.CustomFloatingActionButton
-import com.example.late_plate.ui.screens.assistant.RecipeAssistantScreen
 import com.example.late_plate.ui.screens.home.HomeScreen
 import com.example.late_plate.ui.screens.inventory.InventoryScreen
-import com.example.late_plate.ui.screens.login.LoginScreen
-import com.example.late_plate.ui.screens.recipe.RecipeScreen
+
+import com.example.late_plate.ui.screens.recipe_generation.RecipeGenerationScreen
 import com.example.late_plate.ui.theme.Late_plateTheme
 import com.example.late_plate.viewModel.IngredientsViewModel
-import io.ktor.client.engine.okhttp.OkHttp
-import com.example.late_plate.view_model.InventoryPopUpState
-import com.example.late_plate.view_model.InventoryViewModel
-import com.example.late_plate.view_model.InventoryViewModelFactory
+import com.example.late_plate.viewModel.InventoryPopUpState
+import com.example.late_plate.viewModel.InventoryViewModel
+import com.example.late_plate.viewModel.RecommendationViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val ingredientsViewModel: IngredientsViewModel by viewModels()
+        private val ingredientsViewModel: IngredientsViewModel by viewModels()
+        private val recommendationViewModel: RecommendationViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var isLoading by mutableStateOf(true)
@@ -49,13 +42,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val ingredients by ingredientsViewModel.ingredientsList.collectAsState()
-
+            val recipes=recommendationViewModel.getRecipesBlocking(5215572)
             LaunchedEffect(ingredients) {
                 if (ingredients.isNotEmpty()) isLoading = false
             }
             val dataStore = InventoryDataStore(this)
-            val viewModelFactory = InventoryViewModelFactory(dataStore)
-            val inventoryViewModel: InventoryViewModel = viewModel(factory = viewModelFactory)
+
+            val inventoryViewModel: InventoryViewModel by viewModels()
 
             Late_plateTheme {
                 Scaffold(
@@ -66,14 +59,14 @@ class MainActivity : ComponentActivity() {
                         inventoryViewModel.openDialog()} )},
                     ) {
                     innerPadding ->
-                   // RecipeGenerationScreen()
-//                    HomeScreen(modifier = Modifier.padding(innerPadding), data = dummyRecipes)
-//                    RecipeAssistantScreen(modifier = Modifier.padding(innerPadding), dummyRecipes.first())
-                    InventoryScreen(
-                        inventoryViewModel,
-                        modifier = Modifier.padding(innerPadding),
-                        onEdit = {newVal -> ingredientsViewModel.getMatchingIngredients(newVal)}
-                    )
+                        //RecipeGenerationScreen(ingredientsViewModel, modifier = Modifier.padding(innerPadding))
+                        HomeScreen(modifier = Modifier.padding(innerPadding), data = recipes)
+                    //RecipeAssistantScreen(modifier = Modifier.padding(innerPadding), dummyRecipes.first())
+//                     InventoryScreen(
+//                        inventoryViewModel,
+//                        modifier = Modifier.padding(innerPadding),
+//                        onEdit = {newVal -> ingredientsViewModel.getMatchingIngredients(newVal)}
+//                        )
                 }
             }
         }

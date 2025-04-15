@@ -1,10 +1,5 @@
 package com.example.late_plate.ui.screens.inventory
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.late_plate.view_model.InventoryViewModel
-
 //@Composable
 //fun AddItemPopup(modifier: Modifier){
 //    val inventoryViewModel: InventoryViewModel = viewModel()

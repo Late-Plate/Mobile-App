@@ -50,9 +50,9 @@ import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.dummy.dummyRecipes
 import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.ui.components.OnlineImageCard
-import com.example.late_plate.view_model.AlarmNotificationHelper
-import com.example.late_plate.view_model.RecipeAssistantViewModel
-import com.example.late_plate.view_model.TimerState
+import com.example.late_plate.viewModel.AlarmNotificationHelper
+import com.example.late_plate.viewModel.RecipeAssistantViewModel
+import com.example.late_plate.viewModel.TimerState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

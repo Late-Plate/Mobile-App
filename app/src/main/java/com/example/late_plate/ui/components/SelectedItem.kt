@@ -1,5 +1,6 @@
 package com.example.late_plate.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +20,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun SelectedItem(text: String) {
+fun SelectedItem(text: String, onClick: (String)->Unit) {
    Card(
        modifier = Modifier
            .fillMaxWidth()
@@ -44,6 +45,9 @@ fun SelectedItem(text: String) {
                tint = MaterialTheme.colorScheme.primary,
                contentDescription = null,
                modifier = Modifier.padding(end=10.dp)
+                   .clickable {
+                       onClick(text)
+                   }
            )
        }
 

@@ -4,7 +4,6 @@ package com.example.late_plate.ui.screens.inventory
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,14 +33,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.late_plate.R
 import com.example.late_plate.ui.components.CustomCard
-import com.example.late_plate.view_model.InventoryViewModel
+import com.example.late_plate.viewModel.InventoryViewModel
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -49,12 +46,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.example.late_plate.ui.components.SwipeToDeleteContainer
-import com.example.late_plate.view_model.InventoryPopUpState
+import com.example.late_plate.viewModel.InventoryPopUpState
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)

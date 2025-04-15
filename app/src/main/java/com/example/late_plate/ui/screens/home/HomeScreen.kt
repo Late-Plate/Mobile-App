@@ -39,13 +39,14 @@ import androidx.compose.ui.unit.sp
 import com.example.late_plate.R
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.dummy.dummyRecipes
+import com.example.late_plate.network.RecipeResponse
 import com.example.late_plate.ui.components.FilterationBar
 import com.example.late_plate.ui.components.RecipeCard
 import com.example.late_plate.ui.components.RecommendationCard
 import com.example.late_plate.ui.theme.Late_plateTheme
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier,data:List<Recipe>) {
+fun HomeScreen(modifier: Modifier = Modifier,data:List<RecipeResponse>) {
     Column ( modifier= modifier
         .fillMaxSize()
         .statusBarsPadding()
@@ -122,7 +123,7 @@ fun HomeScreen(modifier: Modifier = Modifier,data:List<Recipe>) {
 }
 
 @Composable
-fun RecommendationCarousel(recipes:List<Recipe>, onClick: (Recipe) -> Unit){
+fun RecommendationCarousel(recipes:List<RecipeResponse>, onClick: (RecipeResponse) -> Unit){
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -141,7 +142,7 @@ fun RecommendationCarousel(recipes:List<Recipe>, onClick: (Recipe) -> Unit){
 
 }
 @Composable
-fun PopularPicks(recipes: List<Recipe>){
+fun PopularPicks(recipes: List<RecipeResponse>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier =  Modifier.fillMaxSize(),
@@ -154,17 +155,3 @@ fun PopularPicks(recipes: List<Recipe>){
     }
 }
 
-@Preview(showBackground = true,uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun HomeScreenPreview() {
-
-    Late_plateTheme{
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // Force background color
-        ){
-            HomeScreen(data = dummyRecipes)
-        }
-    }
-}

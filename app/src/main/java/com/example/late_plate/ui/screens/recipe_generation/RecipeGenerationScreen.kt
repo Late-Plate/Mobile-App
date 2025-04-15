@@ -7,22 +7,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.late_plate.R
 import com.example.late_plate.ui.components.IngredientChip
 import com.example.late_plate.ui.components.SelectedItem
+import com.example.late_plate.viewModel.IngredientsViewModel
+import com.example.late_plate.viewModel.RecipeGenerationViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeGenerationScreen() {
+fun RecipeGenerationScreen(ingredientsViewModel: IngredientsViewModel,
+                           modifier: Modifier = Modifier,
+                           recipeGenerationViewModel:RecipeGenerationViewModel =hiltViewModel()) {
     val defaultIngredientsList = listOf("Rice", "Chicken", "Beans", "Salt")
+    recipeGenerationViewModel.setIngredients(defaultIngredientsList)
+    var searchText by remember { mutableStateOf("") }
     val selectedIngredients = remember { mutableStateListOf<String>() }
 
     Column(
@@ -35,7 +42,7 @@ fun RecipeGenerationScreen() {
         TopAppBar(
             title = { Text("Recipe Generation", color = MaterialTheme.colorScheme.onPrimary) },
             navigationIcon = {
-                IconButton(onClick = { }) {
+                IconButton(onClick = { /* TODO: Handle back navigation */ }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                         tint = MaterialTheme.colorScheme.onPrimary,
@@ -65,7 +72,8 @@ fun RecipeGenerationScreen() {
 
                 // Ingredient Chips
                 LazyRow(modifier = Modifier.padding(8.dp)) {
-                    items(defaultIngredientsList) { item ->
+
+                    items(recipeGenerationViewModel.ingredients.value) { item ->
                         IngredientChip(item, false) {
                             if (it !in selectedIngredients) {
                                 selectedIngredients.add(it)
@@ -76,14 +84,38 @@ fun RecipeGenerationScreen() {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Search Field (Placeholder)
+                // Search Field
                 TextField(
-                    value = "Look for ingredients",
-                    onValueChange = {},
+                    value = searchText,
+                    onValueChange = {
+                        searchText = it
+                        if (it.isNotEmpty()) {
+                           recipeGenerationViewModel.setIngredients( ingredientsViewModel.getMatchingIngredients(it))
+                        } else {
+                            recipeGenerationViewModel.setIngredients(defaultIngredientsList)
+                        }
+                    },
+                    placeholder = { Text("Look for ingredients") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
+                    singleLine = true
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { recipeGenerationViewModel.parseList() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text("Generate Recipe")
+                }
+
             }
         }
 
@@ -92,14 +124,10 @@ fun RecipeGenerationScreen() {
         // Selected Ingredients List
         LazyColumn {
             items(selectedIngredients) { item ->
-                SelectedItem(item)
+                SelectedItem(item, onClick ={
+                    selectedIngredients.remove(it)
+                })
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RecipeGenerationScreenPreview() {
-    RecipeGenerationScreen()
 }
