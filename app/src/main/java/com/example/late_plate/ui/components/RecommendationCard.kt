@@ -23,10 +23,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.late_plate.dummy.Recipe
-import com.example.late_plate.network.RecipeResponse
 
 @Composable
-fun RecommendationCard(modifier: Modifier = Modifier, recipe: RecipeResponse, onClick:(()->Unit)?=null) {
+fun RecommendationCard(modifier: Modifier = Modifier, recipe: Recipe, onClick:(()->Unit)?=null) {
     CustomCard (modifier=Modifier.fillMaxWidth().height(156.dp), onClick = onClick){
         Row (modifier=Modifier.fillMaxWidth()) {
             Column (modifier=Modifier.weight(1f)){

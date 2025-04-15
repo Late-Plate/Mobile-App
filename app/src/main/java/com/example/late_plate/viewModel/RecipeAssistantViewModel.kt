@@ -50,7 +50,7 @@ class RecipeAssistantViewModel: ViewModel(){
         _currentRecipe.value = recipe
         _stepIndex.value = 0
 
-        recipe.steps.forEachIndexed { index, step ->
+        recipe.directions.forEachIndexed { index, step ->
             extractTime(step)?.let { duration ->
                 val key = RecipeTimerKey(recipe.title, index)
                 _allTimerStates.getOrPut(key) {

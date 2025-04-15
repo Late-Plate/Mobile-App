@@ -123,7 +123,7 @@ fun RecipeAssistantScreen(modifier: Modifier, recipe: Recipe) {
                             .verticalScroll(rememberScrollState())
                     ) {
                         Text(
-                            text = "Step ${stepIndex + 1} of ${recipe.steps.size}",
+                            text = "Step ${stepIndex + 1} of ${recipe.directions.size}",
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
@@ -131,7 +131,7 @@ fun RecipeAssistantScreen(modifier: Modifier, recipe: Recipe) {
 
                         Text(
                             modifier = Modifier.padding(top = 16.dp),
-                            text = recipe.steps[stepIndex],
+                            text = recipe.directions[stepIndex],
                             fontSize = 20.sp,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Medium
@@ -172,15 +172,15 @@ fun RecipeAssistantScreen(modifier: Modifier, recipe: Recipe) {
                                 Spacer(modifier = Modifier.weight(1f))
                             }
 
-                            if (recipe.steps[stepIndex].lowercase().contains("oven")) {
+                            if (recipe.directions[stepIndex].lowercase().contains("oven")) {
                                 Icon(
                                     painter = painterResource(R.drawable.temperature),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
-                            else if(recipe.steps[stepIndex].lowercase().contains("combine") ||
-                                recipe.steps[stepIndex].lowercase().contains("mix")){
+                            else if(recipe.directions[stepIndex].lowercase().contains("combine") ||
+                                recipe.directions[stepIndex].lowercase().contains("mix")){
                                 Icon(
                                     painter = painterResource(R.drawable.mix),
                                     contentDescription = null,
@@ -194,7 +194,7 @@ fun RecipeAssistantScreen(modifier: Modifier, recipe: Recipe) {
                 Icon(
                     modifier = Modifier
                         .clickable {
-                            assistantViewModel.goToNextStep(recipe.steps.size)
+                            assistantViewModel.goToNextStep(recipe.directions.size)
                         }
                         .padding(top = 16.dp),
                     imageVector = Icons.Filled.Add,

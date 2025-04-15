@@ -1,5 +1,6 @@
 package com.example.late_plate.network
 
+import com.example.late_plate.dummy.Recipe
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -17,7 +18,7 @@ import javax.inject.Inject
 class RecipeGenerationClient (
     private val httpClient: HttpClient
 ) {
-    suspend fun getTopRecipes(userId:Int): Result<List<RecipeResponse>, NetworkError> {
+    suspend fun getTopRecipes(userId:Int): Result<List<Recipe>, NetworkError> {
         val response = try {
             httpClient.post(
                 urlString = "https://crow-square-absolutely.ngrok-free.app/combined_recommendations"

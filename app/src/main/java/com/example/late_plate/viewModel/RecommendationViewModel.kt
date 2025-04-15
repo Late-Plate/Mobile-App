@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.network.RecipeGenerationClient
-import com.example.late_plate.network.RecipeResponse
+
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.runBlocking
@@ -17,7 +17,7 @@ class RecommendationViewModel @Inject constructor
     (val recipeGenerationClient: RecipeGenerationClient)
     : ViewModel() {
 
-    fun getRecipesBlocking(userId: Int): List<RecipeResponse> {
+    fun getRecipesBlocking(userId: Int): List<Recipe> {
         return runBlocking {
             val result = recipeGenerationClient.getTopRecipes(userId)
             when (result) {

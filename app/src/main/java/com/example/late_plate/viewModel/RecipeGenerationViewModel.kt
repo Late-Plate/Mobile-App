@@ -1,14 +1,11 @@
 package com.example.late_plate.viewModel
 
-import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.animation.core.rememberTransition
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.network.RecipeGenerationClient
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -70,7 +67,7 @@ class RecipeGenerationViewModel @Inject constructor(val recipeGenerationClient: 
             difficulty = "difficulty",
             time = "time",
             ingredients = ingredientList,
-            steps = instructionList
+            directions = instructionList
         )
         Log.d("recipe",recipe.toString())
     }

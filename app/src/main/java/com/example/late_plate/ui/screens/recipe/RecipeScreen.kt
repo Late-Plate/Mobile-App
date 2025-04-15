@@ -125,7 +125,7 @@ fun RecipeScreen(modifier: Modifier, recipe: Recipe) {
             )
             ExpandableCard(
                 title = "instructions",
-                content = recipe.steps.toBulletList(),
+                content = recipe.directions.toBulletList(),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(modifier = Modifier.height(86.dp))

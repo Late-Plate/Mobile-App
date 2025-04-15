@@ -24,29 +24,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.late_plate.R
 import com.example.late_plate.dummy.Recipe
-import com.example.late_plate.dummy.dummyRecipes
-import com.example.late_plate.network.RecipeResponse
 import com.example.late_plate.ui.components.FilterationBar
 import com.example.late_plate.ui.components.RecipeCard
 import com.example.late_plate.ui.components.RecommendationCard
-import com.example.late_plate.ui.theme.Late_plateTheme
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier,data:List<RecipeResponse>) {
+fun HomeScreen(modifier: Modifier = Modifier,data:List<Recipe>) {
     Column ( modifier= modifier
         .fillMaxSize()
         .statusBarsPadding()
@@ -123,7 +116,7 @@ fun HomeScreen(modifier: Modifier = Modifier,data:List<RecipeResponse>) {
 }
 
 @Composable
-fun RecommendationCarousel(recipes:List<RecipeResponse>, onClick: (RecipeResponse) -> Unit){
+fun RecommendationCarousel(recipes:List<Recipe>, onClick: (Recipe) -> Unit){
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,7 +135,7 @@ fun RecommendationCarousel(recipes:List<RecipeResponse>, onClick: (RecipeRespons
 
 }
 @Composable
-fun PopularPicks(recipes: List<RecipeResponse>){
+fun PopularPicks(recipes: List<Recipe>){
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier =  Modifier.fillMaxSize(),

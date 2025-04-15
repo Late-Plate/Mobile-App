@@ -20,7 +20,7 @@ val dummyRecipes = listOf(
             "1 cup mozzarella cheese",
             "Fresh basil leaves"
         ),
-        steps = listOf(
+        directions = listOf(
             "Preheat oven to 475°F (245°C).",
             "In a bowl, combine warm water, sugar, and yeast. Let sit for 1 minutes.",
             "Add flour, salt, and olive oil. Knead into dough and let rise for 1 hour.",
@@ -45,7 +45,7 @@ val dummyRecipes = listOf(
             "1 tbsp olive oil",
             "2 cloves garlic (optional)"
         ),
-        steps = listOf(
+        directions = listOf(
             "Boil spaghetti in salted water until al dente.",
             "Fry pancetta in olive oil until crispy.",
             "Whisk eggs with Parmesan cheese, salt, and black pepper.",
