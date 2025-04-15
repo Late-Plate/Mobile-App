@@ -1,48 +1,80 @@
 package com.example.late_plate.model
-import YOLOClassifier
+
 import android.content.Context
-import coil3.Bitmap
-import org.tensorflow.lite.task.core.BaseOptions
-import org.tensorflow.lite.task.vision.detector.ObjectDetector
-import org.tensorflow.lite.support.image.ImageProcessor
-import org.tensorflow.lite.support.image.TensorImage
+import android.content.res.AssetManager
+import org.tensorflow.lite.Interpreter
+import java.nio.ByteBuffer
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
+import org.tensorflow.lite.Interpreter.Options
+import java.util.concurrent.locks.ReentrantLock
 
 class TfliteClassifier(
-    val context: Context, val threshold: Float = 0.0001f,val maxResults:Int=5,val model:String="best_float32.tflite"
-) :YOLOClassifier{
+    val context: Context,
+    private val threshold: Float = 0.5f,
+    model: String = "best_float16.tflite"
+) : YOLOClassifier {
 
-    private var classifier:ObjectDetector?=null
 
-    private fun setupClassifier(){
-        val baseOptions = BaseOptions.builder().setNumThreads(2).build()
-        val options = ObjectDetector.ObjectDetectorOptions.builder()
-            .setBaseOptions(baseOptions)
-            .setMaxResults(maxResults)
-            .setScoreThreshold(threshold)
-            .build()
+    private val modelBuffer: MappedByteBuffer by lazy { loadModelFile(context.assets, model) }
+    private val interpreter: Interpreter by lazy {
+        val options = Options()
+        options.numThreads = Runtime.getRuntime().availableProcessors()
+        Interpreter(modelBuffer, options)
+    }
+    private val modelLock = ReentrantLock()
+
+    override fun classify(byteBuffer: ByteBuffer): List<Classification> {
+        modelLock.lock()
         try {
-            classifier=ObjectDetector.createFromFileAndOptions(context,model,options)
-        }
-        catch (e:IllegalStateException){
-            e.printStackTrace()
+            val outputArray = Array(1) { Array(71) { FloatArray(8400) } }
+            interpreter.run(byteBuffer, outputArray)
+            return processYoloOutput(outputArray, ClassNames())
+        } finally {
+            modelLock.unlock()
         }
     }
 
-    override fun classify(bitmap: Bitmap): List<Classification> {
-        if(classifier==null){
-            setupClassifier()
-        }
-        val imageProcessor= ImageProcessor.Builder().build()
-        val tensorImage=imageProcessor.process(TensorImage.fromBitmap(bitmap))
-        val result=classifier?.detect(tensorImage)?: emptyList()
-        return result.flatMap { detection ->
-            detection.categories.map { category ->
-                category.label to category.score
+    private fun loadModelFile(assetManager: AssetManager, modelPath: String): MappedByteBuffer {
+        val fileDescriptor = assetManager.openFd(modelPath)
+        val inputStream = java.io.FileInputStream(fileDescriptor.fileDescriptor)
+        val fileChannel = inputStream.channel
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, fileDescriptor.startOffset, fileDescriptor.declaredLength)
+    }
+
+    private fun processYoloOutput(outputArray: Array<Array<FloatArray>>, classNames: ClassNames): List<Classification> {
+        val predictionLength = 71
+        val numPredictions = 8400
+
+        val topPredictions = mutableMapOf<String, Classification>()
+
+        for (i in 0 until numPredictions) {
+            var maxConfidence = 0f
+            var maxClassIndex = -1
+            for (j in 4 until predictionLength) {
+                val confidence = outputArray[0][j][i]
+                if (confidence > maxConfidence) {
+                    maxConfidence = confidence
+                    maxClassIndex = j - 4
+                }
+            }
+            if (maxConfidence >= threshold) {
+                val className = classNames.classNames[maxClassIndex]
+                val prediction = Classification(className, maxConfidence)
+
+                if (topPredictions.containsKey(className)) {
+                    if (prediction.score > topPredictions[className]!!.score) {
+                        topPredictions[className] = prediction
+                    }
+                } else {
+                    topPredictions[className] = prediction
+                }
             }
         }
-            .groupBy { it.first }
-            .map { (label, scores) ->
-                Classification(label, scores.maxOf { it.second })
-            }
+
+        return topPredictions.values.sortedByDescending { it.score }
+    }
+    protected fun finalize() {
+        interpreter.close()
     }
 }

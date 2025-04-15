@@ -55,6 +55,6 @@ fun ErrorImage(modifier: Modifier = Modifier) {
         painter = painterResource(id = R.drawable.default_image),
         contentDescription = "Error Image",
         contentScale = ContentScale.Crop,
-        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
     )
 }

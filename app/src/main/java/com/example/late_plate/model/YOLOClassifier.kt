@@ -1,6 +1,6 @@
-import coil3.Bitmap
-import com.example.late_plate.model.Classification
+package com.example.late_plate.model
+import java.nio.ByteBuffer
 
 interface YOLOClassifier{
-    fun classify(bitmap: Bitmap):List<Classification>
+    fun classify(byteBuffer: ByteBuffer):List<Classification>
 }
