@@ -11,4 +11,6 @@
     <color name="cancel_btn_color">#595959</color>
     <color name="transparent">#00F4F4F4</color>
     <color name="primary">#FFF4661E</color>
+    <color name="primary_semitransparent">#96F48D1E</color>
+    <color name="primary_transparent">#4CF48D1E</color>
 </resources>

@@ -1,5 +1,6 @@
-package com.example.late_plate.ui.screens.login
+package com.example.late_plate.ui.screens.login_signup
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,11 @@ import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.ui.components.CustomTextField
 
 @Composable
-fun LoginCard(modifier: Modifier = Modifier) {
+fun LoginCard(
+    modifier: Modifier = Modifier,
+    loginClick:(String, String)-> Unit,
+    forgetClick: ()-> Unit
+    ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     CustomCard(modifier = Modifier.fillMaxSize()) {
@@ -72,14 +77,16 @@ fun LoginCard(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 "forget password?",
-                modifier = Modifier.align(Alignment.End),
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .clickable { forgetClick() },
                 textAlign = TextAlign.End,
                 color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(16.dp))
             CustomButton(
-                onClick = {},
+                onClick = {loginClick(email, password) },
                 content = {
                     Text("login", Modifier.padding(horizontal = 32.dp), fontSize = 18.sp)
                 }

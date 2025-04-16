@@ -108,10 +108,14 @@ fun CustomBottomNavigationBar(fabState: FABState) {
             }
 
         }
-        CustomFloatingActionButton(
-            modifier = Modifier,
-            fabState = fabState
-        )
+        Box(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            CustomFloatingActionButton(
+                modifier = Modifier.align(Alignment.TopCenter),
+                fabState = fabState
+            )
+        }
     }
 
 

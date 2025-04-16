@@ -15,16 +15,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.rememberNavController
 import com.example.late_plate.data.InventoryDataStore
-import com.example.late_plate.dummy.dummyRecipes
+import com.example.late_plate.navigation.AppNavHost
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
-import com.example.late_plate.ui.screens.home.HomeScreen
-import com.example.late_plate.ui.screens.ingredients_detection.IngredientDetectionScreen
 import com.example.late_plate.ui.theme.Late_plateTheme
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryPopUpState
 import com.example.late_plate.viewModel.InventoryViewModel
 import com.example.late_plate.viewModel.RecommendationViewModel
+import com.google.firebase.FirebaseApp
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         var isLoading by mutableStateOf(true)
 
         installSplashScreen().setKeepOnScreenCondition { isLoading }
@@ -43,7 +44,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val ingredients by ingredientsViewModel.ingredientsList.collectAsState()
             val recipes = recommendationViewModel.getRecipesBlocking(5215572)
-
+            Log.d("recipes", recipes.toString())
+            val navController = rememberNavController()
             LaunchedEffect(ingredients) {
                 if (ingredients.isNotEmpty()) isLoading = false
             }
@@ -57,21 +59,32 @@ class MainActivity : ComponentActivity() {
             val dataStore = InventoryDataStore(this)
 
             Late_plateTheme {
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         CustomBottomNavigationBar(fabState)
                     }
-                ) { innerPadding ->
+                ){ innerPadding ->
+                    AppNavHost(
+                        navController = navController,
+                        applicationContext = this.applicationContext,
+                        recipes = recipes,
+                        fabState = fabState,
+                        ingredientsViewModel = ingredientsViewModel,
+                        inventoryViewModel = inventoryViewModel,
+                        modifier = Modifier.padding(innerPadding) // Add padding here if needed
+                    )
+//                    LoginScreen(modifier = Modifier.padding(innerPadding), navController)
 
                     // Example: You can switch screens here depending on state/navigation
                     // Uncomment the screen you want to show:
 
-                     IngredientDetectionScreen(
-                         modifier = Modifier.padding(innerPadding),
-                         context = applicationContext,
-                         fabState = fabState
-                     )
+//                     IngredientDetectionScreen(
+//                         modifier = Modifier.padding(innerPadding),
+//                         context = applicationContext,
+//                         fabState = fabState
+//                     )
 
 //                    HomeScreen(
 //                        modifier = Modifier.padding(innerPadding),

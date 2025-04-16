@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "484071396395",
+    "project_id": "late-plate-9d59b",
+    "storage_bucket": "late-plate-9d59b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484071396395:android:fe95afb36829fe96e5466e",
+        "android_client_info": {
+          "package_name": "com.example.late_plate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDehzBsV1YzJJKw3-D1D1WXeZyRIo5ZXiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

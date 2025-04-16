@@ -7,6 +7,8 @@ plugins {
     kotlin("plugin.serialization") version "1.9.0"
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -115,6 +117,7 @@ dependencies {
     // Dependency Injection (Hilt and Koin)
     implementation("com.google.dagger:hilt-android:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    implementation(libs.firebase.firestore.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
     // Koin for Dependency Injection
@@ -136,6 +139,21 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+
+    // Also add the dependencies for the Credential Manager libraries and specify their versions
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
 }
 
 kapt {
