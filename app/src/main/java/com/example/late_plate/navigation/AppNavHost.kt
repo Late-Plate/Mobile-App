@@ -15,6 +15,7 @@ import com.example.late_plate.ui.screens.login_signup.LoginScreen
 import com.example.late_plate.ui.screens.home.HomeScreen
 
 import com.example.late_plate.ui.screens.login_signup.ForgotPasswordScreen
+import com.example.late_plate.ui.screens.login_signup.SignupScreen
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
 
@@ -36,6 +37,10 @@ fun AppNavHost(
     ) {
         composable(Screen.Login.route) {
             LoginScreen(navController = navController)
+        }
+
+        composable(Screen.Signup.route) {
+            SignupScreen(navController = navController)
         }
 
         composable(Screen.Home.route) {

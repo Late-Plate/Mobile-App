@@ -151,6 +151,8 @@ dependencies {
 
     // Also add the dependencies for the Credential Manager libraries and specify their versions
     implementation("androidx.credentials:credentials:1.3.0")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0") // or latest version
+
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 

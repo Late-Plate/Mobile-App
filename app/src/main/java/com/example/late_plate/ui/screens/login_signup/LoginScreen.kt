@@ -8,15 +8,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.late_plate.R
 import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
 import com.example.late_plate.viewModel.AuthenticationViewModel
 import com.example.late_plate.viewModel.LoginSignupUiEvent
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.api.ApiException
+
 
 
 @Composable
@@ -25,7 +33,18 @@ fun LoginScreen(
     navController: NavController
 ) {
     val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
+
+    val loginAlertState by authenticationViewModel.loginAlert.collectAsState()
+
+    if(loginAlertState){
+        AuthenticationAlert(
+            "Incorrect Email/Password",
+            { authenticationViewModel.loginAlert.value = false }
+        )
+    }
     val context = LocalContext.current
+
+
     LaunchedEffect(Unit) {
         authenticationViewModel.loginSignupEvent.collect{ event ->
             Log.d("loginEvent", event.toString())
@@ -37,11 +56,14 @@ fun LoginScreen(
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
-                is LoginSignupUiEvent.LoginFailed->{
-                    Toast.makeText(context, "Invalid Email or password", Toast.LENGTH_LONG).show()
-                }
                 is LoginSignupUiEvent.ToForgotPassScreen->{
                     navController.navigate(Screen.ForgotPass.route){
+                        Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
+                        popUpTo(Screen.Login.route) { inclusive = false }
+                    }
+                }
+                is LoginSignupUiEvent.ToSignupScreen->{
+                    navController.navigate(Screen.Signup.route){
                         Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
                         popUpTo(Screen.Login.route) { inclusive = false }
                     }
@@ -62,7 +84,9 @@ fun LoginScreen(
         LoginCard(
             loginClick = {email, password ->
                 authenticationViewModel.loginUser(email, password)},
-            forgetClick = { authenticationViewModel.navigateToForgotPass() }
+            forgetClick = { authenticationViewModel.navigateToForgotPass() },
+            signupClick = {authenticationViewModel.navigateToSignUp()},
+            authenticationViewModel = authenticationViewModel
         )
     }
 }

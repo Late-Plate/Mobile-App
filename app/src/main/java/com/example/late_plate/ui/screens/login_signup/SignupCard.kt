@@ -1,0 +1,125 @@
+package com.example.late_plate.ui.screens.login_signup
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Password
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.late_plate.R
+import com.example.late_plate.ui.components.CustomButton
+import com.example.late_plate.ui.components.CustomCard
+import com.example.late_plate.ui.components.CustomTextField
+
+@Composable
+fun SignupCard(
+    modifier: Modifier = Modifier,
+    signupClick: (String, String, String, String)-> Unit,
+    toLoginClick: ()-> Unit
+) {
+    val scrollState = rememberScrollState()
+
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+
+    CustomCard(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = modifier.verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Signup",
+                fontWeight = FontWeight.Bold,
+                fontSize = 30.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.align(Alignment.Start)
+            )
+            Text(
+                "welcome to late plate",
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.Start)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            CustomTextField(
+                value = username,
+                onValueChange = { newValue -> username = newValue },
+                placeholder = "username",
+                icon = Icons.Outlined.Person
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CustomTextField(
+                value = email,
+                onValueChange = { newValue -> email = newValue },
+                placeholder = "email",
+                icon = Icons.Outlined.Email
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CustomTextField(
+                value = password,
+                onValueChange = { newValue -> password = newValue },
+                placeholder = "password",
+                icon = Icons.Outlined.Password,
+                isPassword = true
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            CustomTextField(
+                value = confirmPassword,
+                onValueChange = { newValue -> confirmPassword = newValue },
+                placeholder = "confirm password",
+                icon = Icons.Outlined.Password,
+                isPassword = true
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            CustomButton(
+                onClick = {signupClick(username, email, password, confirmPassword) },
+                content = {
+                    Text("Signup", Modifier.padding(horizontal = 32.dp), fontSize = 18.sp)
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row{
+                Text("already have an account?", color = MaterialTheme.colorScheme.onPrimary, fontSize = 14.sp)
+                Spacer(modifier=Modifier.width(12.dp))
+                Text(
+                    text = "login",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 15.sp,
+                    modifier = Modifier.clickable {toLoginClick() }
+                )
+            }
+        }
+    }
+}

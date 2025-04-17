@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
 import com.example.late_plate.viewModel.AuthenticationViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun ForgotPasswordScreen(
@@ -28,23 +29,23 @@ fun ForgotPasswordScreen(
     val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
     var message by remember { mutableStateOf("") }
     val uiState by authenticationViewModel.uiState.collectAsState()
-
     LaunchedEffect(uiState.isSent) {
-        when(uiState.isSent){
-            null->{
+        when (uiState.isSent) {
+            null -> {
                 Log.d("IS SENT", "null")
             }
-            else->{
-                Log.d("ISSENT", "not null")
+            else -> {
+                Log.d("ISSENT", "not null, ${uiState.isLoading}, ${uiState.message}")
+
+                // Delay navigation by 3 seconds
+                delay(2000)
 
                 // Log before navigating
                 Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
 
-                // Log the condition and action
                 if (navController.currentDestination?.route != Screen.Login.route) {
                     Log.d("NavController", "Navigating to Login")
                     navController.navigate(Screen.Login.route) {
-                        // Log popUpTo configuration
                         Log.d("NavController", "Popping up to ForgotPass: inclusive=true")
                         popUpTo(Screen.ForgotPass.route) { inclusive = true }
                     }
