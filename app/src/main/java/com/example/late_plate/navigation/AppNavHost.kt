@@ -13,6 +13,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import com.example.late_plate.FABState
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.dummy.dummyRecipes
+import com.example.late_plate.ui.screens.assistant.RecipeAssistantScreen
 
 import com.example.late_plate.ui.screens.login_signup.LoginScreen
 import com.example.late_plate.ui.screens.home.HomeScreen
@@ -73,6 +74,16 @@ fun AppNavHost(
                 inventoryViewModel,
                 pagerState = pagerState,
                 onEdit = {newVal -> ingredientsViewModel.getMatchingIngredients(newVal)}
+            )
+        }
+
+        composable(Screen.RecipeAssistant.route){
+            RecipeAssistantScreen(
+                navController = navController,
+                recipe = dummyRecipes.first(),
+                onConfirmation = {
+                    ingredients-> inventoryViewModel.removeIngredientsFromInventory(ingredients)
+                }
             )
         }
     }

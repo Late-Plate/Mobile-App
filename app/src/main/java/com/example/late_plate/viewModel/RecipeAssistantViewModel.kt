@@ -37,6 +37,9 @@ class RecipeAssistantViewModel: ViewModel(){
     private var _stepIndex = mutableStateOf(0)
     var stepIndex: State<Int> = _stepIndex
 
+    private var _isFinished = mutableStateOf(false)
+    var isFinished: State<Boolean> = _isFinished
+
     val recipeTimerKey: State<RecipeTimerKey?> = derivedStateOf {
         if (currentRecipe.value != null) {
             RecipeTimerKey(recipeName = currentRecipe.value!!.title, stepIndex = stepIndex.value)
@@ -45,6 +48,11 @@ class RecipeAssistantViewModel: ViewModel(){
         }
     }
 
+
+
+    fun setIsFinished(value: Boolean) {
+        _isFinished.value = value
+    }
 
     fun loadRecipe(recipe: Recipe) {
         _currentRecipe.value = recipe
@@ -127,14 +135,20 @@ class RecipeAssistantViewModel: ViewModel(){
         super.onCleared()
     }
 
-    fun goToNextStep(totalSteps: Int){
-        if (_stepIndex.value < totalSteps - 1)
+    fun goToNextStep(totalSteps: Int) {
+        if (_stepIndex.value < totalSteps - 1) {
             _stepIndex.value++
+        } else if (_stepIndex.value == totalSteps - 1) {
+            _isFinished.value = true
+        }
     }
 
     fun goToPreviousStep(){
-        if(_stepIndex.value > 0)
+        if(_stepIndex.value > 0) {
             _stepIndex.value--
+            _isFinished.value = false
+        }
+
     }
 
 }

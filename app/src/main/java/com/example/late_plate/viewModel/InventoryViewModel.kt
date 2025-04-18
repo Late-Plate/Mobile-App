@@ -113,6 +113,37 @@ class InventoryViewModel @Inject constructor(
     }
 
 
+    fun removeIngredientsFromInventory(ingredientsList: List<String>){
+        val ingredients = extractIngredients(ingredientsList)
+        val itemsToRemove = mutableListOf<Int>()
+
+        ingredients.forEachIndexed { index, ingredient ->
+            _inventoryItems.forEachIndexed { inventoryIndex, item ->
+                if (item.title.equals(ingredient.ingredient)
+                    && item.unitType.lowercase().equals(ingredient.quantityType)
+                ) {
+                    if (item.quantity >= ingredient.quantity) {
+                        item.quantity -= ingredient.quantity.toFloat()
+                        if(item.quantity == 0f){
+                            itemsToRemove.add(inventoryIndex)
+                        }
+                        return@forEachIndexed
+                    } else {
+                        //remove item
+                        itemsToRemove.add(inventoryIndex)
+                        return@forEachIndexed
+                    }
+                }
+            }
+        }
+        itemsToRemove.distinct().sortedDescending().forEach { index ->
+            _inventoryItems.removeAt(index)
+        }
+
+        saveInventory()
+
+    }
+
     fun addRecipeIngredientsToGroceryList(ingredientsList: List<String>){
         val ingredients = extractIngredients(ingredientsList)
 
@@ -377,7 +408,7 @@ enum class InventoryPopUpState{
 data class InventoryItem(
     val id: Int,
     val title: String,
-    val quantity: Float,
+    var quantity: Float,
     val unitType: String
 )
 data class IngredientEntry(

@@ -2,7 +2,10 @@
 
 package com.example.late_plate.ui.screens.assistant
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,21 +37,28 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.late_plate.R
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.dummy.dummyRecipes
+import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.ui.components.OnlineImageCard
 import com.example.late_plate.viewModel.AlarmNotificationHelper
@@ -56,13 +67,31 @@ import com.example.late_plate.viewModel.TimerState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeAssistantScreen(modifier: Modifier, recipe: Recipe) {
+fun RecipeAssistantScreen(
+    navController: NavController,
+    recipe: Recipe,
+    onConfirmation: (List<String>) -> Unit,
+) {
     val assistantViewModel: RecipeAssistantViewModel = viewModel()
     LaunchedEffect(recipe) {
         assistantViewModel.loadRecipe(recipe)
     }
     val context = LocalContext.current
     val alarmHelper = remember { AlarmNotificationHelper(context) }
+
+    val isFinished by assistantViewModel.isFinished
+
+    val goToRecipe = remember { mutableStateOf(false) }
+
+    if (goToRecipe.value) {
+        LaunchedEffect(Unit) {
+            navController.navigate(Screen.SelectedRecipe.route) {
+                popUpTo(Screen.RecipeAssistant.route) { inclusive = true }
+            }
+            goToRecipe.value = false // reset state if needed
+        }
+    }
+
 
     LaunchedEffect(Unit) {
         assistantViewModel.alarmEvents.collect { key ->
@@ -154,14 +183,16 @@ fun RecipeAssistantScreen(modifier: Modifier, recipe: Recipe) {
 
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(top = 16.dp)
+                                .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             if (stepIndex > 0) {
                                 Icon(
                                     modifier = Modifier
                                         .clickable {
-                                        assistantViewModel.goToPreviousStep()
+                                            assistantViewModel.goToPreviousStep()
                                         }
                                         .size(42.dp),
                                     imageVector = Icons.Filled.ArrowBack,
@@ -208,6 +239,25 @@ fun RecipeAssistantScreen(modifier: Modifier, recipe: Recipe) {
                 recipeName = key.recipeName,
                 stepIndex = key.stepIndex,
                 onDismiss = { assistantViewModel.dismissAlarm(key) }
+            )
+        }
+    }
+    if(isFinished){
+        // call alert
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            RecipeFinishedPopUp(
+                onConfirmation = {
+                    onConfirmation(recipe.ingredients)
+                    goToRecipe.value = true
+                    assistantViewModel.setIsFinished(false)
+
+                },
+                onCancel = { assistantViewModel.setIsFinished(false) }
             )
         }
     }
@@ -278,5 +328,88 @@ fun CountdownTimerWithProgress(
 @Preview
 @Composable
 fun PreviewAssistantScreen() {
-    RecipeAssistantScreen(Modifier, dummyRecipes[0])
+    RecipeFinishedPopUp(onConfirmation = {}) { }
+}
+
+@Composable
+fun RecipeFinishedPopUp(
+    onConfirmation: ()-> Unit,
+    onCancel: ()-> Unit
+){
+    Card(
+        modifier= Modifier
+            .shadow(8.dp, shape = RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp, // Border thickness
+                color = MaterialTheme.colorScheme.background, // Border color
+                shape = RoundedCornerShape(16.dp) // Must match shadow shape
+            )
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.plate_icon),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .size(130.dp)
+                        .padding(bottom = 4.dp)
+                )
+                Text(
+                    text = "Ready to enjoy your delicious creation?",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    textAlign = TextAlign.Center,
+                    fontSize = 20.sp
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 32.dp)
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = {onConfirmation()},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "Absolutely"
+                    )
+                }
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = {onCancel()},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.cancel_btn_color),
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "Not yet"
+                    )
+                }
+            }
+        }
+
+    }
+
 }
