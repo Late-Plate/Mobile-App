@@ -16,6 +16,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,32 +42,45 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.example.late_plate.FABState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.example.late_plate.model.Classification
 import com.example.late_plate.model.ImageAnalyzer
 import com.example.late_plate.model.TfliteClassifier
 import com.example.late_plate.ui.components.CustomButton
 import com.example.late_plate.ui.components.DetectedIngredientCard
+import com.example.late_plate.ui.components.ExpandableSelectionCard
 import com.example.late_plate.ui.components.OfflineImageCard
+import com.example.late_plate.ui.screens.FABState
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, fabState: FABState) {
     fabState.changeFAB(newIcon = Icons.Outlined.CameraAlt, newOnClick = {})
 
 
     var classifications by remember { mutableStateOf(emptyList<Classification>()) }
-    val analyzer = remember {
+    var selectedSpeed by remember { mutableStateOf("Normal") }
+    val speeds = listOf("Fast", "Normal", "Slow")
+    var selectedScore by remember { mutableStateOf("Medium") }
+    val scores = listOf("High", "Medium", "Low")
+    val analyzer = remember(selectedScore, selectedSpeed) {
         ImageAnalyzer(
+            score = selectedScore,
+            speed = selectedSpeed,
             classifier = TfliteClassifier(context = context),
-            onResult = { classifications = it })
+            onResult = { classifications = it }
+        )
     }
     val controller = remember {
         LifecycleCameraController(context).apply {
             setEnabledUseCases(
-                CameraController.IMAGE_ANALYSIS or CameraController.IMAGE_CAPTURE
+                CameraController.IMAGE_ANALYSIS
             )
             setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(context), analyzer)
         }
+
     }
     val activity = LocalContext.current as? Activity
 
@@ -76,12 +92,12 @@ fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, f
             ) == PackageManager.PERMISSION_GRANTED
         )
     }
-    val lifecycleOwner = LocalContext.current as? androidx.lifecycle.LifecycleOwner
+    val lifecycleOwner = LocalContext.current as? LifecycleOwner
 
     LaunchedEffect(Unit) {
         lifecycleOwner?.lifecycle?.addObserver(
-            androidx.lifecycle.LifecycleEventObserver { _, event ->
-                if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
                     val permissionGranted = ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.CAMERA
@@ -119,7 +135,7 @@ fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, f
                     imageRes = null,
                     onClick = null
                 )
-                Column (horizontalAlignment = Alignment.CenterHorizontally){
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CustomButton(
                         onClick = { launcher.launch(Manifest.permission.CAMERA) },
                         content = {
@@ -131,32 +147,69 @@ fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, f
                         }
                     )
                     Text(
-                        "open settings", color = MaterialTheme.colorScheme.onPrimary, fontSize = 14.sp,
+                        "open settings",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 14.sp,
                         modifier = Modifier.clickable {
                             activity?.let {
-                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.fromParts("package", it.packageName, null)
-                                }
+                                val intent =
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", it.packageName, null)
+                                    }
                                 it.startActivity(intent)
                             }
                         }
                     )
                 }
             }
-
         }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(vertical = 16.dp)
+        ) {
+            ExpandableSelectionCard(
+                options = speeds, label = "speed", selectedOption = selectedSpeed,
+                modifier = Modifier.weight(1f),
+                onOptionSelected = { selectedSpeed = it }
+            )
+            ExpandableSelectionCard(
+                options = scores, label = "scores", selectedOption = selectedScore,
+                modifier = Modifier.weight(1f),
+                onOptionSelected = { selectedScore = it }
+            )
+        }
+
         Column(
-            modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(
                     rememberScrollState()
                 ),
             verticalArrangement = Arrangement.Top
         ) {
-            classifications.forEach {
-                DetectedIngredientCard(modifier = Modifier.padding(vertical = 8.dp), it)
+            if (classifications.isNotEmpty()) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    classifications.forEach { item ->
+                        DetectedIngredientCard(modifier = Modifier.padding(bottom = 8.dp), item)
+                    }
+                }
+
+            } else {
+                Text(
+                    "detected ingredients will show up here!",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 13.sp,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
             }
         }
     }
-
 }
+
+

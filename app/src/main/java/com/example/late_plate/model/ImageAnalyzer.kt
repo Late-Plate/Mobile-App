@@ -12,19 +12,27 @@ import java.util.concurrent.Executors
 import kotlin.math.min
 
 class ImageAnalyzer(
+    var score:String,
+    speed:String,
     val classifier: TfliteClassifier,
     val onResult: (List<Classification>) -> Unit
 ) : ImageAnalysis.Analyzer {
     private var frameCount: Int = 0
+    private var frameSkip:Int=when (speed) {
+        "Fast" -> 5
+        "Normal" -> 10
+        "Slow" -> 15
+        else -> 0
+    }
     private val threadCount = Runtime.getRuntime().availableProcessors()
     private val executor = Executors.newFixedThreadPool(threadCount)
     override fun analyze(image: ImageProxy) {
-        if (frameCount % 15 == 0) {
+        if (frameCount % frameSkip == 0) {
             val bitmap = image.toBitmap().crop()
             executor.execute {
                 try {
                     val byteBuffer = bitmap.convertBitmapToByteBuffer(640)
-                    val results = classifier.classify(byteBuffer)
+                    val results = classifier.classify(byteBuffer,score)
                     onResult(results)
                 } catch (e: Exception) {
                     e.printStackTrace()

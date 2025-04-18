@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,26 +37,38 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.ui.components.ExpandableCard
 import com.example.late_plate.ui.components.OnlineImageCard
+import com.example.late_plate.ui.screens.FABState
+import com.example.late_plate.ui.screens.assistant.RecipeAssistant
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(modifier: Modifier, recipe: Recipe) {
+fun RecipeScreen(
+    modifier: Modifier,
+    recipe: Recipe,
+    fabState: FABState,
+    navController: NavHostController
+) {
     var saved by remember { mutableStateOf(false) }
+    var isAssistant by remember { mutableStateOf(false) }
+    fabState.changeFAB(newIcon = if(isAssistant) Icons.Rounded.Stop else Icons.Rounded.PlayArrow , newOnClick = {isAssistant=!isAssistant})
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
-            title = { Text(recipe.title, color = MaterialTheme.colorScheme.onPrimary) },
+            title = { Text(recipe.title, color = MaterialTheme.colorScheme.onPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             navigationIcon = {
-                IconButton(onClick = { }) {
+                IconButton(onClick = { navController.popBackStack()}) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                         tint = MaterialTheme.colorScheme.onPrimary,
@@ -80,30 +94,33 @@ fun RecipeScreen(modifier: Modifier, recipe: Recipe) {
             imageUrl = recipe.imageUrl, modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp,)
         )
+        Spacer(Modifier.height(16.dp))
 
-        CustomCard(modifier = Modifier.offset(y = (-24).dp), contentPadding = 8) {
-            Row(modifier = Modifier.padding(horizontal = 24.dp)) {
+//        CustomCard(modifier = Modifier.offset(y = (-24).dp), contentPadding = 8) {
+//            Row(modifier = Modifier.padding(horizontal = 24.dp)) {
+//
+//                Icon(
+//                    imageVector = Icons.Outlined.Timer,
+//                    contentDescription = null, tint = MaterialTheme.colorScheme.primary
+//                )
+//                Spacer(modifier = Modifier.width(4.dp))
+//                Text(recipe.time, color = MaterialTheme.colorScheme.onPrimary)
+//
+//                Spacer(modifier = Modifier.width(16.dp))
+//
+//                Icon(
+//                    imageVector = Icons.Outlined.Speed,
+//                    contentDescription = null, tint = MaterialTheme.colorScheme.primary
+//                )
+//                Spacer(modifier = Modifier.width(4.dp))
+//                Text(recipe.difficulty, color = MaterialTheme.colorScheme.onPrimary)
+//
+//            }
+//        }
 
-                Icon(
-                    imageVector = Icons.Outlined.Timer,
-                    contentDescription = null, tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(recipe.time, color = MaterialTheme.colorScheme.onPrimary)
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Icon(
-                    imageVector = Icons.Outlined.Speed,
-                    contentDescription = null, tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(recipe.difficulty, color = MaterialTheme.colorScheme.onPrimary)
-
-            }
-        }
+        if(!isAssistant){
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -113,15 +130,16 @@ fun RecipeScreen(modifier: Modifier, recipe: Recipe) {
                     rememberScrollState()
                 ), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            ExpandableCard(
-                title = "description",
-                content = recipe.description,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+//            ExpandableCard(
+//                title = "description",
+//                content = recipe.description,
+//                modifier = Modifier.padding(horizontal = 16.dp)
+//            )
             ExpandableCard(
                 title = "ingredients",
                 content = recipe.ingredients.toBulletList(),
                 modifier = Modifier.padding(horizontal = 16.dp)
+                , opened = true
             )
             ExpandableCard(
                 title = "instructions",
@@ -129,6 +147,9 @@ fun RecipeScreen(modifier: Modifier, recipe: Recipe) {
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(modifier = Modifier.height(86.dp))
+        }
+        }else{
+            RecipeAssistant(modifier=Modifier,recipe)
         }
 
 

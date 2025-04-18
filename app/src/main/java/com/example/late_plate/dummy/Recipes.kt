@@ -8,7 +8,7 @@ val dummyRecipes = listOf(
         description = "A classic Italian pizza with fresh tomatoes, mozzarella, and basil.",
         imageUrl = "https://i0.wp.com/cookingitalians.com/wp-content/uploads/2024/11/Margherita-Pizza.jpg?fit=1344%2C768&ssl=1",
         difficulty = "Easy",
-        time = "40 mins",
+        time = "110 mins",
         ingredients = listOf(
             "2 1/2 cups all-purpose flour",
             "1 tsp salt",
@@ -22,8 +22,8 @@ val dummyRecipes = listOf(
         ),
         directions = listOf(
             "Preheat oven to 475°F (245°C).",
-            "In a bowl, combine warm water, sugar, and yeast. Let sit for 1 minutes.",
-            "Add flour, salt, and olive oil. Knead into dough and let rise for 1 hour.",
+            "In a bowl, combine warm water, sugar, and yeast. Let sit for 60 seconds.",
+            "Add flour, salt, and olive oil. Knead into dough and let rise for an hour.",
             "Roll out dough and spread tomato sauce evenly.",
             "Top with mozzarella cheese and fresh basil.",
             "Bake for 10-12 minutes or until crust is golden brown.",

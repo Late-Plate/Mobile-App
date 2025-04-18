@@ -8,5 +8,5 @@ import com.example.late_plate.model.Classification
 
 @Composable
 fun DetectedIngredientCard(modifier: Modifier = Modifier,classification: Classification) {
-    CustomCard(modifier=modifier.wrapContentWidth(),contentPadding=8) {Text("${classification.name}: %${(classification.score*100).toInt()} sure")}
+    CustomCard(modifier=modifier.wrapContentWidth(),contentPadding=8) {Text("${classification.name}, score %${(classification.score*100).toInt()}")}
 }

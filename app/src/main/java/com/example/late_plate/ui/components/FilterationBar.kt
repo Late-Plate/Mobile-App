@@ -12,8 +12,8 @@ import androidx.compose.ui.unit.dp
 fun FilterationBar(){
     val ingredientsList= listOf("flour","chicken","meat")
     Row(
-        modifier = Modifier.padding(5.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        modifier = Modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
 
     ){
         IngredientChip(text = "All", isSelected = true){

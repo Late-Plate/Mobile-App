@@ -26,7 +26,7 @@ import com.example.late_plate.dummy.Recipe
 
 @Composable
 fun RecommendationCard(modifier: Modifier = Modifier, recipe: Recipe, onClick:(()->Unit)?=null) {
-    CustomCard (modifier=Modifier.fillMaxWidth().height(156.dp), onClick = onClick){
+    CustomCard (modifier=modifier.fillMaxWidth().height(156.dp), onClick = onClick){
         Row (modifier=Modifier.fillMaxWidth()) {
             Column (modifier=Modifier.weight(1f)){
                 Text(
@@ -76,7 +76,7 @@ fun RecommendationCard(modifier: Modifier = Modifier, recipe: Recipe, onClick:((
 //                }
             }
             Spacer(modifier=Modifier.width(16.dp))
-            OnlineImageCard(imageUrl = "", modifier = Modifier.fillMaxHeight().width(136.dp), onClick = onClick)
+            OnlineImageCard(imageUrl = recipe.imageUrl, modifier = Modifier.fillMaxHeight().width(136.dp), onClick = onClick)
         }
     }
 

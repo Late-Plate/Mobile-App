@@ -39,6 +39,7 @@ import com.example.late_plate.viewModel.InventoryViewModel
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.example.late_plate.ui.components.SwipeToDeleteContainer
+import com.example.late_plate.ui.screens.FABState
 import com.example.late_plate.viewModel.InventoryPopUpState
 
 
@@ -57,12 +59,13 @@ import com.example.late_plate.viewModel.InventoryPopUpState
 @Composable
 fun InventoryScreen(
     inventoryViewModel: InventoryViewModel,
-    modifier : Modifier = Modifier,
-    onEdit: (String) -> List<String>
+    modifier: Modifier = Modifier,
+    onEdit: (String) -> List<String>,
+    fabState: FABState
 ){
 
     var showAlert by remember { mutableStateOf(false) }
-
+    fabState.changeFAB(newIcon = Icons.Outlined.Person, newOnClick = {})
     val iconsList = listOf(
         R.drawable.inv_icon1,
         R.drawable.inv_icon2,

@@ -1,5 +1,3 @@
-import com.android.build.api.dsl.Packaging
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -45,11 +43,16 @@ android {
     buildFeatures {
         compose = true
     }
+    packagingOptions {
+        jniLibs {
+            excludes += setOf("META-INF/**")
+        }
+        resources {
+            excludes += setOf("META-INF/**")
+        }
+    }
 
     // To avoid deprecated warnings, you can add packaging options here
-    packagingOptions {
-        exclude("META-INF/**")  // Exclude unwanted files from dependencies
-    }
 }
 
 val ktor_version: String by project
@@ -95,7 +98,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // JSON Handling
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.gson.v2101)
 
     // Ktor Dependencies (Updated)
     implementation("io.ktor:ktor-client-core:$ktor_version")
@@ -106,22 +109,22 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
 
     // KotlinX Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    implementation(libs.kotlinx.serialization.json.v170)
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation(libs.kotlinx.coroutines.android)
 
     // Dependency Injection (Hilt and Koin)
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    kapt(libs.hilt.android.compiler)
 
     // Koin for Dependency Injection
-    implementation("io.insert-koin:koin-android:$koin_version")
+    implementation(libs.koin.android)
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation(libs.androidx.navigation.compose.v277)
 
     // UI and Icons
     implementation(libs.androidx.material.icons.extended)
@@ -136,6 +139,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation (libs.androidx.navigation.compose)
 }
 
 kapt {

@@ -24,24 +24,29 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CustomTextField(
+    modifier: Modifier=Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    icon: ImageVector,
+    icon: ImageVector? = null,
     isPassword: Boolean = false
 ) {
     var showPassword by remember { mutableStateOf(false) }
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         visualTransformation = if (isPassword && !showPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        leadingIcon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+        leadingIcon = if (icon != null) {
+            {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        } else {
+            null
         },
         trailingIcon = {
             IconButton(onClick = {

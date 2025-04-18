@@ -15,17 +15,20 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Fastfood
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -48,11 +51,18 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.late_plate.FABState
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.late_plate.ui.screens.FABState
+import com.example.late_plate.ui.screens.HomeRoute
+import com.example.late_plate.ui.screens.IngredientDetectionRoute
+import com.example.late_plate.ui.screens.InventoryRoute
+import com.example.late_plate.ui.screens.RecipeGenerationRoute
 
 @Composable
-fun CustomBottomNavigationBar(fabState: FABState) {
-    var selected by remember { mutableStateOf("Home") }
+fun CustomBottomNavigationBar(fabState: FABState, navController: NavHostController) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
 
     Box(
         modifier = Modifier
@@ -83,33 +93,65 @@ fun CustomBottomNavigationBar(fabState: FABState) {
                 BottomNavItem(
                     icons = Icons.Filled.Fastfood to Icons.Outlined.Fastfood,
                     label = "Home",
-                    isSelected = selected == "Home",
-                    onClick = { selected = "Home" }
+                    isSelected = currentRoute == HomeRoute::class.qualifiedName,
+                    onClick = {
+                        if (currentRoute != HomeRoute::class.qualifiedName) {
+                            navController.navigate(HomeRoute) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    }
                 )
                 BottomNavItem(
                     icons = Icons.Filled.Inventory2 to Icons.Outlined.Inventory2,
                     label = "Inventory",
-                    isSelected = selected == "Inventory",
-                    onClick = { selected = "Inventory" }
+                    isSelected = currentRoute == InventoryRoute::class.qualifiedName,
+                    onClick = {
+                        if (currentRoute != InventoryRoute::class.qualifiedName) {
+                            navController.navigate(InventoryRoute) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.width(56.dp))
                 BottomNavItem(
-                    icons = Icons.Filled.Bookmark to Icons.Outlined.BookmarkBorder,
-                    label = "Saved",
-                    isSelected = selected == "Saved",
-                    onClick = { selected = "Saved" }
+                    icons = Icons.Filled.SmartToy to Icons.Outlined.SmartToy,
+                    label = "generator",
+                    isSelected = currentRoute == RecipeGenerationRoute::class.qualifiedName,
+                    onClick = {
+                        if (currentRoute != RecipeGenerationRoute::class.qualifiedName) {
+                            navController.navigate(RecipeGenerationRoute) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    }
                 )
                 BottomNavItem(
-                    icons = Icons.Filled.Person to Icons.Outlined.Person,
-                    label = "Profile",
-                    isSelected = selected == "Profile",
-                    onClick = { selected = "Profile" })
+                    icons = Icons.Filled.CameraAlt to Icons.Outlined.CameraAlt,
+                    label = "detector",
+                    isSelected = currentRoute == IngredientDetectionRoute::class.qualifiedName,
+                    onClick = {
+                        if (currentRoute != IngredientDetectionRoute::class.qualifiedName) {
+                            navController.navigate(IngredientDetectionRoute) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    })
             }
 
         }
         CustomFloatingActionButton(
-            modifier = Modifier,
+            modifier = Modifier.align(alignment = Alignment.TopCenter),
             fabState = fabState
         )
     }
@@ -159,6 +201,7 @@ fun CustomFloatingActionButton(
 ) {
     Box(
         modifier = modifier
+            .padding(top = 4.dp)
             .shadow(2.dp, shape = RoundedCornerShape(16.dp))
             .size(52.dp),
         contentAlignment = Alignment.Center
