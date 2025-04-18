@@ -18,6 +18,8 @@ class InventoryDataStore @Inject constructor(
     @ApplicationContext private val context: Context) {
 
     private val INVENTORY_KEY = stringPreferencesKey("inventory_items")
+    private val GROCERY_KEY = stringPreferencesKey("grocery_items")
+
 
     suspend fun saveInventoryItems(items: List<InventoryItem>) {
         val jsonString = Gson().toJson(items)
@@ -31,4 +33,18 @@ class InventoryDataStore @Inject constructor(
         val type = object : TypeToken<List<InventoryItem>>() {}.type
         Gson().fromJson(jsonString, type) ?: emptyList()
     }
+
+    suspend fun saveGroceryItems(items: List<InventoryItem>) {
+        val jsonString = Gson().toJson(items)
+        context.dataStore.edit { preferences ->
+            preferences[GROCERY_KEY] = jsonString
+        }
+    }
+
+    val groceryItemsFlow: Flow<List<InventoryItem>> = context.dataStore.data.map { preferences ->
+        val jsonString = preferences[GROCERY_KEY] ?: "[]"
+        val type = object : TypeToken<List<InventoryItem>>() {}.type
+        Gson().fromJson(jsonString, type) ?: emptyList()
+    }
+
 }

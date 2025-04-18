@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Scaffold
@@ -18,6 +19,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.late_plate.data.InventoryDataStore
 import com.example.late_plate.navigation.AppNavHost
+import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.theme.Late_plateTheme
 import com.example.late_plate.viewModel.IngredientsViewModel
@@ -42,6 +44,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val pagerState = rememberPagerState(
+                initialPage = 0,
+                pageCount = { 2 }
+            )
+
             val ingredients by ingredientsViewModel.ingredientsList.collectAsState()
             val recipes = recommendationViewModel.getRecipesBlocking(5215572)
             Log.d("recipes", recipes.toString())
@@ -51,9 +58,14 @@ class MainActivity : ComponentActivity() {
             }
 
             val fabState = rememberFABState(Icons.Outlined.Person) {
-                inventoryViewModel.addOrUpdate = InventoryPopUpState.ADD
-                Log.d("ADD", inventoryViewModel.addOrUpdate.toString())
-                inventoryViewModel.openDialog()
+                if(navController.currentDestination?.route == Screen.Inventory.route
+                    && pagerState.currentPage == 0){
+                    inventoryViewModel.openInventoryDialog()
+                }
+                else if(navController.currentDestination?.route == Screen.Inventory.route
+                    && pagerState.currentPage == 1){
+                    inventoryViewModel.openGroceryDialog()
+                }
             }
 
             val dataStore = InventoryDataStore(this)
@@ -73,6 +85,7 @@ class MainActivity : ComponentActivity() {
                         fabState = fabState,
                         ingredientsViewModel = ingredientsViewModel,
                         inventoryViewModel = inventoryViewModel,
+                        pagerState = pagerState,
                         modifier = Modifier.padding(innerPadding) // Add padding here if needed
                     )
 //                    LoginScreen(modifier = Modifier.padding(innerPadding), navController)

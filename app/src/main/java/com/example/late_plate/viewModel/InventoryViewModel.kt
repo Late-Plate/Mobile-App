@@ -8,10 +8,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.late_plate.data.InventoryDataStore
+import com.example.late_plate.dummy.Recipe
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @HiltViewModel
 class InventoryViewModel @Inject constructor(
@@ -19,6 +22,9 @@ class InventoryViewModel @Inject constructor(
 ) : ViewModel(){
     private val _inventoryItems = mutableStateListOf<InventoryItem>()
     val inventoryItems: List<InventoryItem> get() = _inventoryItems
+
+    private val _groceryList = mutableStateListOf<InventoryItem>()
+    val groceryList: List<InventoryItem> get() = _groceryList
 
     var selectFromNER = mutableStateOf(false)
 
@@ -32,28 +38,26 @@ class InventoryViewModel @Inject constructor(
             _addOrUpdate = value
         }
 
-    private val _idsSet = mutableSetOf<Int>()
+    val kitchenMetrics = mapOf(
+        "cup" to 0.25f,
+        "cups" to 0.25f,
+        "teaspoon" to 0.005f,
+        "tsp" to 0.005f,
+        "tablespoon" to 0.015f,
+        "tbsp" to 0.015f
+    )
 
-    lateinit var ingredients: List<String>
+    private val _idsSetInventory = mutableSetOf<Int>()
+    private val _idsSetGrocery = mutableSetOf<Int>()
 
-    init {
-        viewModelScope.launch {
-            loadInventory()
-            _inventoryItems.forEach { item -> _idsSet.add(item.id) }
-
-            Log.d("ID'S SET", _idsSet.toString())
-        }
-    }
-
-    private suspend fun loadInventory() {
-        val savedItems = dataStore.inventoryItemsFlow.first()
-        _inventoryItems.clear()
-        _inventoryItems.addAll(savedItems)
-    }
+    val fractionRegex = Regex("^\\s*\\d+(\\.\\d+)?\\s*/\\s*\\d+(\\.\\d+)?\\s*$")
 
 
 
-    var showDialog by mutableStateOf(false)
+    var showInventoryDialog by mutableStateOf(false)
+        private set
+
+    var showGroceryListDialog by mutableStateOf(false)
         private set
 
     var selectedItem by mutableStateOf<InventoryItem?>(null)
@@ -63,12 +67,166 @@ class InventoryViewModel @Inject constructor(
         private set
 
 
-    fun openDialog(){
-        showDialog = true
-        Log.d("ADD", addOrUpdate.toString())
+    init {
+        viewModelScope.launch {
+            loadInventory()
+            loadGroceryList()
+            _inventoryItems.forEach { item -> _idsSetInventory.add(item.id) }
+            _groceryList.forEach { item -> _idsSetGrocery.add(item.id) }
+
+            Log.d("GROCERY", _groceryList.toString())
+
+            Log.d("ID'S SET", _idsSetInventory.toString())
+        }
     }
 
-    fun generateUniqueId(): Int {
+    private suspend fun loadInventory() {
+        val savedItems = dataStore.inventoryItemsFlow.first()
+        _inventoryItems.clear()
+        _inventoryItems.addAll(savedItems)
+    }
+    private suspend fun loadGroceryList() {
+        val savedGroceryItems = dataStore.groceryItemsFlow.first()
+        _groceryList.clear()
+        _groceryList.addAll(savedGroceryItems)
+    }
+
+    private fun saveInventory() {
+        viewModelScope.launch {
+            dataStore.saveInventoryItems(_inventoryItems)
+        }
+    }
+    private fun saveGroceryList() {
+        viewModelScope.launch {
+            dataStore.saveGroceryItems(_groceryList)
+        }
+    }
+
+    fun fractionToDecimal(fraction: String): Double {
+        val parts = fraction.split("/")
+        if (parts.size == 2) {
+            val numerator = parts[0].toDouble()
+            val denominator = parts[1].toDouble()
+            return numerator / denominator
+        }
+        throw IllegalArgumentException("Invalid fraction format")
+    }
+
+
+    fun addRecipeIngredientsToGroceryList(ingredientsList: List<String>){
+        val ingredients = extractIngredients(ingredientsList)
+
+        //find ingredients already in inventory and skip them
+        val willBeAddedIngredients = mutableListOf<IngredientEntry>()
+        ingredients.forEachIndexed { index, ingredient->
+            inventoryItems.forEach {item->
+                if(item.title.equals(ingredient.ingredient)
+                    && item.unitType.lowercase().equals(ingredient.quantityType)){
+                    if(item.quantity >= ingredient.quantity) {
+                        Log.d("IN INVENTORY", ingredient.toString())
+                        return@forEachIndexed
+                    }
+                    else{
+                        val newQuantity = ingredient.quantity - item.quantity
+                        ingredient.quantity = newQuantity
+                        willBeAddedIngredients.add(ingredient)
+                        return@forEachIndexed
+                    }
+                }
+            }
+
+            willBeAddedIngredients.add(ingredient)
+
+        }
+
+        //add them in grocery list
+        willBeAddedIngredients.forEach { ingredient->
+            val newId = generateUniqueId(_idsSetGrocery)
+            _groceryList.add(InventoryItem(
+                id = newId,
+                title = ingredient.ingredient,
+                quantity = ingredient.quantity.toFloat(),
+                unitType = ingredient.quantityType
+            ))
+            _idsSetGrocery.add(newId)
+
+        }
+
+        saveGroceryList()
+
+        Log.d("ADDED", willBeAddedIngredients.toString())
+        Log.d("ADDED", ingredients.toString())
+    }
+
+    private fun extractIngredients(ingredientsList: List<String>): MutableList<IngredientEntry> {
+        val ingredients = mutableListOf<IngredientEntry>()
+        val quantityType = StringBuilder()
+
+        ingredientsList.forEach { ingredient->
+            quantityType.clear()
+            var quantity = 0.0
+            var splitWords = ingredient.split(" ")
+
+            splitWords.forEachIndexed { index, word ->
+                val hasDigits = word.contains(Regex("\\d"))
+                if (hasDigits) {
+                    if (fractionRegex.matches(word)) {
+                        quantity += fractionToDecimal(word)
+                    } else {
+                        quantity += word.toDouble()
+                    }
+                } else {
+                    var indexToStartFrom = 0
+                    if (kitchenMetrics.containsKey(word)) {
+                        quantity *= kitchenMetrics[word]!!
+                        quantity = BigDecimal(quantity).setScale(3, RoundingMode.HALF_UP).toDouble()
+                        indexToStartFrom = index + 1
+                        quantityType.append("kg")
+                    }
+                    else{
+                        if(word.lowercase().equals("packet")) {
+                            quantityType.append(word.lowercase())
+                            indexToStartFrom = index + 1
+                        }
+                        else {
+                            quantityType.append("unit")
+                            indexToStartFrom = index
+                        }
+
+                    }
+                    val ingredientWords = splitWords.subList(indexToStartFrom, splitWords.size)
+                    val extractedIngredient = ingredientWords.joinToString(" ")
+
+                    if(extractedIngredient.lowercase().contains("water"))
+                        return@forEach
+                    if(quantity == 0.0)
+                        quantity += 1
+
+
+                    ingredients.add(IngredientEntry(extractedIngredient.lowercase(), quantity, quantityType.toString()))
+                    println("Quantity: $quantity, Ingredient: $extractedIngredient")
+                    return@forEach
+                }
+            }
+
+        }
+        return ingredients
+    }
+
+
+
+
+
+
+    fun openInventoryDialog(){
+        showInventoryDialog = true
+        Log.d("ADD", addOrUpdate.toString())
+    }
+    fun openGroceryDialog(){
+        showGroceryListDialog = true
+    }
+
+    fun generateUniqueId(_idsSet: Set<Int>): Int {
         var newId = 0
         while (_idsSet.contains(newId)) {
             newId++
@@ -85,32 +243,54 @@ class InventoryViewModel @Inject constructor(
 
     fun addItem(name: String, quantity: Float, type: String): String {
         if(!selectFromNER.value) return "FAIL"
-        if(!validateInput(name, quantity)) return "NOT VALID"
+        if(!validateInput(name, quantity, type)) return "NOT VALID"
 
-        if(lookForSimilarItem(name, quantity, type)) return "SIMILAR"
+        if(lookForSimilarItemInventory(name, quantity, type)) return "SIMILAR"
 
-        val newId = generateUniqueId()
+        val newId = generateUniqueId(_idsSetInventory)
         val newItem = InventoryItem(id = newId, title = name, quantity, type)
 
         _inventoryItems.add(newItem)
-        _idsSet.add(newId)
+        _idsSetInventory.add(newId)
 
         saveInventory()
         return "SUCCESS"
     }
+    fun addGroceryItem(name: String, quantity: Float, type: String):String{
+        if(!validateInput(name, quantity, type)) return "NOT VALID"
+        Log.d("VALID", "$name $quantity $type")
+        if(lookForSimilarItemGrocery(name, quantity, type)) return "SIMILAR"
+        val newId = generateUniqueId(_idsSetGrocery)
+        val newItem = InventoryItem(id = newId, title = name, quantity, type)
+
+        _groceryList.add(newItem)
+        _idsSetGrocery.add(newId)
+        saveGroceryList()
+        return "SUCCESS"
+    }
+
+    fun removeGroceryItem(item: InventoryItem) {
+        _groceryList.remove(item)
+        saveGroceryList()
+    }
+
 
     fun selectItem(item: InventoryItem, index: Int) {
         selectedItem = item
         selectedIndex = index
-        showDialog = true
+        showInventoryDialog = true
         selectFromNER.value = true
     }
 
-    fun closeDialog() {
-        showDialog = false
+    fun closeInventoryDialog() {
+        showInventoryDialog = false
         selectedItem = null
         selectedIndex = null
         selectFromNER.value = false
+    }
+
+    fun closeGroceryListDialog() {
+        showGroceryListDialog = false
     }
 
     fun deleteItem(item: InventoryItem){
@@ -119,7 +299,7 @@ class InventoryViewModel @Inject constructor(
     }
     fun updateItem(newName: String, newQuantity: Float, newType: String): String {
         if(!selectFromNER.value) return "NULL"
-        if(!validateInput(newName, newQuantity)) return "NOT VALID"
+        if(!validateInput(newName, newQuantity, newType)) return "NOT VALID"
         if (selectedIndex in _inventoryItems.indices) {
             val oldId = _inventoryItems[selectedIndex!!].id
             _inventoryItems.removeAt(selectedIndex!!)
@@ -131,19 +311,18 @@ class InventoryViewModel @Inject constructor(
         }
         return "SUCCESS"
     }
-    private fun saveInventory() {
-        viewModelScope.launch {
-            dataStore.saveInventoryItems(_inventoryItems)
-        }
-    }
 
-    private fun validateInput(name: String, quantity: Float): Boolean{
+
+
+    private fun validateInput(name: String, quantity: Float, type: String): Boolean{
+        Log.d("QUANTITY", type)
         if(quantity <= 0) return false
         if(!ingredientRegex.containsMatchIn(name.lowercase())) return false
+        if(type.isEmpty()) return false
         return true
     }
 
-    private fun lookForSimilarItem(name: String, quantity: Float, type: String): Boolean{
+    private fun lookForSimilarItemInventory(name: String, quantity: Float, type: String): Boolean{
         var updatedItem: InventoryItem? = null
         _inventoryItems.forEachIndexed { index, inventoryItem ->
             if(inventoryItem.title == name){
@@ -165,6 +344,28 @@ class InventoryViewModel @Inject constructor(
         else return true
     }
 
+    private fun lookForSimilarItemGrocery(name: String, quantity: Float, type: String): Boolean{
+        var updatedItem: InventoryItem? = null
+        _groceryList.forEachIndexed { index, inventoryItem ->
+            if(inventoryItem.title == name){
+                val oldItem = inventoryItem
+                _groceryList.removeAt(index)
+                updatedItem = InventoryItem(
+                    oldItem.id,
+                    oldItem.title,
+                    oldItem.quantity + quantity,
+                    type
+                )
+                _groceryList.add(updatedItem!!)
+                saveGroceryList()
+                return true
+
+            }
+        }
+        if(updatedItem == null) return false
+        else return true
+    }
+
 
 }
 
@@ -178,4 +379,9 @@ data class InventoryItem(
     val title: String,
     val quantity: Float,
     val unitType: String
+)
+data class IngredientEntry(
+    val ingredient: String,
+    var quantity: Double,
+    val quantityType: String
 )

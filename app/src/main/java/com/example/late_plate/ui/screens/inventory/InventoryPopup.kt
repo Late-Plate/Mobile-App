@@ -69,6 +69,7 @@ fun CustomInventoryPopup(
     type: String = "kg",
     status: InventoryPopUpState,
     selectNER: MutableState<Boolean>,
+    dialogType: String
 ){
     val inputName = remember { mutableStateOf(name) }
     val inputQuantity = remember { mutableStateOf(quantity.toString()) }
@@ -105,7 +106,7 @@ fun CustomInventoryPopup(
                                     .padding(top = 8.dp)
                             ) {
                                 Text(
-                                    text = "${btnText} inventory item",
+                                    text = "${btnText} ${dialogType} item",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimary,
@@ -149,9 +150,12 @@ fun CustomInventoryPopup(
                                 input = inputName,
                                 selected = selectFromNER.value,
                                 placeholderText = "Enter item's name",
-                                modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .wrapContentHeight(),
                                 onEdit = onEdit,
-                                readOnly = status == InventoryPopUpState.UPDATE
+                                readOnly = status == InventoryPopUpState.UPDATE,
+                                isGrocery = if(dialogType == "Inventory") false else true
                             )
                             
                             Row(
@@ -173,20 +177,26 @@ fun CustomInventoryPopup(
                                 }
                             }
                             Row(
-                                modifier = Modifier.weight(0.17f).wrapContentHeight(),
+                                modifier = Modifier
+                                    .weight(0.17f)
+                                    .wrapContentHeight(),
                             ) {
                                 Box(modifier = Modifier.weight(2f)) { // ✅ Wrap in Box to allow proper weight distribution
                                     CustomTextFieldPopup(
                                         input = inputQuantity,
                                         placeholderText = "Enter Quantity",
-                                        modifier = Modifier.wrapContentWidth().wrapContentHeight(), // ✅ Ensure it takes full width inside Box
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .wrapContentHeight(), // ✅ Ensure it takes full width inside Box
                                         keyboardType = KeyboardType.Number
                                     )
                                 }
                                 Box(modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()) {
-                                    ComboBox(inputType, modifier = Modifier.wrapContentWidth().wrapContentHeight())
+                                    ComboBox(inputType, modifier = Modifier
+                                        .wrapContentWidth()
+                                        .wrapContentHeight())
                                 }
                             }
                             HorizontalDivider(
@@ -250,11 +260,6 @@ fun CustomInventoryPopup(
 
 }
 
-@Preview
-@Composable
-fun PreviewCustomInventoryPopup(){
-//    CustomInventoryPopup(Modifier, true, {}, {}, 0.35f)
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -262,7 +267,7 @@ fun ComboBox(
     selectedOption: MutableState<String>,
     modifier: Modifier
 ) {
-    val options = listOf("kg", "gm", "unit")
+    val options = listOf("kg", "packet", "unit")
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -353,7 +358,8 @@ fun CustomTextFieldPopupSearch(
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
     onEdit: (String) -> List<String>,
-    readOnly: Boolean = false
+    readOnly: Boolean = false,
+    isGrocery: Boolean = false
 ) {
     var filteredIngredients by remember { mutableStateOf(emptyList<String>()) }
     var expanded by remember { mutableStateOf(false) }
@@ -386,7 +392,7 @@ fun CustomTextFieldPopupSearch(
 
         )
 
-        if (expanded) {
+        if (expanded && !isGrocery) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

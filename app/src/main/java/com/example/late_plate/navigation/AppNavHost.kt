@@ -8,27 +8,33 @@ import androidx.navigation.compose.composable
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import com.example.late_plate.FABState
 import com.example.late_plate.dummy.Recipe
+import com.example.late_plate.dummy.dummyRecipes
 
 import com.example.late_plate.ui.screens.login_signup.LoginScreen
 import com.example.late_plate.ui.screens.home.HomeScreen
+import com.example.late_plate.ui.screens.inventory.InventoryScreen
 
 import com.example.late_plate.ui.screens.login_signup.ForgotPasswordScreen
 import com.example.late_plate.ui.screens.login_signup.SignupScreen
+import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    startDestination: String = Screen.Login.route,
+    startDestination: String = Screen.Inventory.route,
     applicationContext: Context,
     recipes: List<Recipe>,
     fabState: FABState,
     ingredientsViewModel: IngredientsViewModel,
     inventoryViewModel: InventoryViewModel,
-    modifier: Modifier = Modifier // <-- add this
+    pagerState: PagerState,
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
@@ -50,8 +56,24 @@ fun AppNavHost(
             )
         }
 
+        composable(Screen.SelectedRecipe.route) {
+            RecipeScreen(
+                recipe = dummyRecipes.first(),
+                modifier = Modifier,
+                inventoryViewModel = inventoryViewModel
+            )
+        }
+
         composable(Screen.ForgotPass.route) {
             ForgotPasswordScreen(navController = navController)
+        }
+
+        composable(Screen.Inventory.route){
+            InventoryScreen(
+                inventoryViewModel,
+                pagerState = pagerState,
+                onEdit = {newVal -> ingredientsViewModel.getMatchingIngredients(newVal)}
+            )
         }
     }
 }
