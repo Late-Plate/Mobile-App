@@ -28,7 +28,7 @@ import com.example.late_plate.viewModel.InventoryViewModel
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    startDestination: String = Screen.Inventory.route,
+    startDestination: String = Screen.Login.route,
     applicationContext: Context,
     recipes: List<Recipe>,
     fabState: FABState,

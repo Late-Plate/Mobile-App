@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.late_plate.R
+import com.example.late_plate.data.User
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.ui.components.FilterationBar
 import com.example.late_plate.ui.components.RecipeCard
@@ -45,7 +46,7 @@ fun HomeScreen(modifier: Modifier = Modifier,data:List<Recipe>) {
         .statusBarsPadding()
         .padding(horizontal = 16.dp)){
         Text(
-            stringResource(R.string.welcome_text),
+            text = "Hey ${User.username.value}",
             fontSize = 32.sp,
             color = MaterialTheme.colorScheme.onPrimary
 
