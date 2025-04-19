@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,7 +58,7 @@ import com.example.late_plate.ui.screens.FABState
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, fabState: FABState) {
-    fabState.changeFAB(newIcon = Icons.Outlined.CameraAlt, newOnClick = {})
+    fabState.changeFAB(newIcon = Icons.Outlined.Camera, newOnClick = {})
 
 
     var classifications by remember { mutableStateOf(emptyList<Classification>()) }

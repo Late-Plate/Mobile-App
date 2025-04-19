@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
             val dataStore = InventoryDataStore(this)
 
             Late_plateTheme {
-                MainScreensContainer(ingredientsViewModel,recommendationViewModel,inventoryViewModel,ingredients,recipes,applicationContext)
+                MainScreensContainer(ingredientsViewModel,recommendationViewModel,inventoryViewModel,ingredients,applicationContext)
             }
         }
     }

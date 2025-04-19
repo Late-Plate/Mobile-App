@@ -40,12 +40,10 @@ fun MainScreensContainer(
     recommendationViewModel: RecommendationViewModel,
     inventoryViewModel: InventoryViewModel,
     ingredients: List<String>,
-    recipes: List<Recipe>,
     applicationContext: Context,
 ) {
     val fabState = rememberFABState(Icons.Outlined.Person, onClick = {})
     val navController = rememberNavController()
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -57,7 +55,7 @@ fun MainScreensContainer(
             composable<HomeRoute> {
                 HomeScreen(
                     modifier = Modifier.padding(innerPadding),
-                    data = dummyRecipes, fabState = fabState
+                    data = recommendationViewModel.recipes.value, fabState = fabState
                     ,navController
                 )
             }
@@ -74,7 +72,8 @@ fun MainScreensContainer(
             composable<RecipeGenerationRoute> {
                 RecipeGenerationScreen(
                     modifier = Modifier.padding(innerPadding),
-                    ingredientsViewModel, fabState = fabState
+                    ingredientsViewModel, fabState = fabState,
+                    navController=navController
                 )
             }
             composable<IngredientDetectionRoute> {
