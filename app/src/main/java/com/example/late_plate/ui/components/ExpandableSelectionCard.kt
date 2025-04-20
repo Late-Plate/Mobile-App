@@ -44,14 +44,14 @@ fun ExpandableSelectionCard(
     Card(
         modifier = modifier
             .shadow(8.dp, shape = RoundedCornerShape(16.dp))
-            .animateContentSize(),
+            ,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier
                 .clickable { expanded = !expanded }
-                .padding(16.dp)
+                .padding(16.dp).animateContentSize()
         ) {
             Row (horizontalArrangement = Arrangement.SpaceBetween){
                 Row(verticalAlignment = Alignment.CenterVertically) {

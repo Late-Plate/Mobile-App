@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -38,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +56,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.late_plate.ui.screens.FABState
+import com.example.late_plate.ui.screens.GenRecipeRoute
+import com.example.late_plate.ui.screens.HomeRecipeRoute
 import com.example.late_plate.ui.screens.HomeRoute
 import com.example.late_plate.ui.screens.IngredientDetectionRoute
 import com.example.late_plate.ui.screens.InventoryRoute
@@ -72,28 +76,27 @@ fun CustomBottomNavigationBar(fabState: FABState, navController: NavHostControll
                 clip = false
             }
     ) {
-
         Card(
             modifier = Modifier
                 .height(86.dp)
                 .align(alignment = Alignment.BottomCenter)
-                .shadow(16.dp, RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp))
-                .offset(y = 8.dp),
+                .shadow(16.dp, RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp)),
 
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+            shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp)
+        ) {
 
-            ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp),
+                    .padding(top = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 BottomNavItem(
                     icons = Icons.Filled.Fastfood to Icons.Outlined.Fastfood,
                     label = "Home",
-                    isSelected = currentRoute == HomeRoute::class.qualifiedName,
+                    isSelected = currentRoute == HomeRoute::class.qualifiedName|| currentRoute?.startsWith(HomeRecipeRoute::class.qualifiedName!!)==true,
                     onClick = {
                         if (currentRoute != HomeRoute::class.qualifiedName) {
                             navController.navigate(HomeRoute) {
@@ -123,7 +126,7 @@ fun CustomBottomNavigationBar(fabState: FABState, navController: NavHostControll
                 BottomNavItem(
                     icons = Icons.Filled.SmartToy to Icons.Outlined.SmartToy,
                     label = "generator",
-                    isSelected = currentRoute == RecipeGenerationRoute::class.qualifiedName,
+                    isSelected = currentRoute == RecipeGenerationRoute::class.qualifiedName||currentRoute?.startsWith(GenRecipeRoute::class.qualifiedName!!)==true,
                     onClick = {
                         if (currentRoute != RecipeGenerationRoute::class.qualifiedName) {
                             navController.navigate(RecipeGenerationRoute) {
@@ -197,7 +200,8 @@ fun BottomNavItem(
 
 @Composable
 fun CustomFloatingActionButton(
-    modifier: Modifier, fabState: FABState
+    modifier: Modifier,
+    fabState: FABState
 ) {
     Box(
         modifier = modifier
@@ -205,28 +209,36 @@ fun CustomFloatingActionButton(
             .shadow(2.dp, shape = RoundedCornerShape(16.dp))
             .size(52.dp),
         contentAlignment = Alignment.Center
-    )
-    {
+    ) {
         FloatingActionButton(
-            onClick = fabState.onClick.value,
+            onClick = {
+                if (!fabState.isLoading.value) fabState.onClick.value()
+            },
             shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.fillMaxSize(),
             elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp)
-
-
         ) {
-            Icon(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
-                imageVector = fabState.icon.value,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
+            if (fabState.isLoading.value) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary,
+
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp)
+                )
+            } else {
+                Icon(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    imageVector = fabState.icon.value,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     }
 }
-
 
 

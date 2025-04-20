@@ -83,8 +83,16 @@ fun MainScreensContainer(
                     fabState = fabState
                 )
             }
-            composable<RecipeRoute> (typeMap = mapOf(typeOf<Recipe>() to RecipeNavType) ){
-                val arg=it.toRoute<RecipeRoute>()
+            composable<HomeRecipeRoute> (typeMap = mapOf(typeOf<Recipe>() to RecipeNavType) ){
+                val arg=it.toRoute<HomeRecipeRoute>()
+                RecipeScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    recipe = arg.recipe,
+                    fabState = fabState,navController
+                )
+            }
+            composable<GenRecipeRoute> (typeMap = mapOf(typeOf<Recipe>() to RecipeNavType) ){
+                val arg=it.toRoute<GenRecipeRoute>()
                 RecipeScreen(
                     modifier = Modifier.padding(innerPadding),
                     recipe = arg.recipe,
@@ -113,8 +121,10 @@ object RecipeNavType : NavType<Recipe>(isNullableAllowed = false) {
 }
 class FABState(
     icon: ImageVector,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isLoading: Boolean=false
 ) {
+    val isLoading: MutableState<Boolean> = mutableStateOf(isLoading)
     val icon: MutableState<ImageVector> = mutableStateOf(icon)
     val onClick: MutableState<() -> Unit> = mutableStateOf(onClick)
 
@@ -122,6 +132,10 @@ class FABState(
         icon.value = newIcon
         onClick.value = newOnClick
     }
+    fun loading(isLoading:Boolean=false){
+            this.isLoading.value=isLoading
+    }
+
 }
 
 @Composable
@@ -142,7 +156,9 @@ object RecipeGenerationRoute
 object InventoryRoute
 
 @Serializable
-data class RecipeRoute(val recipe: Recipe)
+data class HomeRecipeRoute(val recipe: Recipe)
+@Serializable
+data class GenRecipeRoute(val recipe: Recipe)
 // Example: You can switch screens here depending on state/navigation
 // Uncomment the screen you want to show:
 

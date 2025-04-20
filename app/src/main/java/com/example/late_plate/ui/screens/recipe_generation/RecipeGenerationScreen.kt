@@ -24,7 +24,7 @@ import com.example.late_plate.ui.components.ExpandableSelectionCard
 import com.example.late_plate.ui.components.IngredientChip
 import com.example.late_plate.ui.components.SelectedItem
 import com.example.late_plate.ui.screens.FABState
-import com.example.late_plate.ui.screens.RecipeRoute
+import com.example.late_plate.ui.screens.GenRecipeRoute
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.RecipeGenerationViewModel
 
@@ -47,7 +47,7 @@ fun RecipeGenerationScreen(
     val recipe by recipeGenerationViewModel.recipeState.collectAsState()
     LaunchedEffect(recipe) {
         recipe?.let {
-            navController.navigate(RecipeRoute(it))
+            navController.navigate(GenRecipeRoute(it))
         }
     }
     fabState.changeFAB(Icons.Rounded.Bolt, newOnClick = {

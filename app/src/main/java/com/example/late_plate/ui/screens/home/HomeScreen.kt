@@ -49,7 +49,7 @@ import com.example.late_plate.ui.components.FilterationBar
 import com.example.late_plate.ui.components.RecipeCard
 import com.example.late_plate.ui.components.RecommendationCard
 import com.example.late_plate.ui.screens.FABState
-import com.example.late_plate.ui.screens.RecipeRoute
+import com.example.late_plate.ui.screens.HomeRecipeRoute
 
 @Composable
 fun HomeScreen(
@@ -60,7 +60,7 @@ fun HomeScreen(
 ) {
     fabState.changeFAB(newIcon = Icons.Outlined.Person, newOnClick = {})
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
 
@@ -178,7 +178,7 @@ fun RecommendationCarousel(recipes: List<Recipe>, navController: NavController) 
                     .fillParentMaxWidth()
                     .padding(horizontal = 16.dp),
                 recipe = recipe,
-                onClick = { navController.navigate(RecipeRoute(recipe) )})
+                onClick = { navController.navigate(HomeRecipeRoute(recipe) )})
 
         }
     }
@@ -200,7 +200,7 @@ fun PopularPicks(recipes: List<Recipe>,navController:NavController) {
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         items(recipes) { recipe ->
-            RecipeCard(recipe = recipe, onClick = {navController.navigate(RecipeRoute(recipe))})
+            RecipeCard(recipe = recipe, onClick = {navController.navigate(HomeRecipeRoute(recipe))})
         }
         item {
             Spacer(modifier = Modifier.height(86.dp))
