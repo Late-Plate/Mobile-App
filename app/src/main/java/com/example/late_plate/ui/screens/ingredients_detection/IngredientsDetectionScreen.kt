@@ -29,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.rounded.Camera
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,7 +59,7 @@ import com.example.late_plate.ui.screens.FABState
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, fabState: FABState) {
-    fabState.changeFAB(newIcon = Icons.Outlined.Camera, newOnClick = {})
+    fabState.changeFAB(newIcon = Icons.Rounded.Camera, newOnClick = {})
 
 
     var classifications by remember { mutableStateOf(emptyList<Classification>()) }

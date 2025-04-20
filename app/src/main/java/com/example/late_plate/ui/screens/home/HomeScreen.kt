@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,10 +59,10 @@ fun HomeScreen(
     fabState: FABState,
     navController: NavHostController
 ) {
-    fabState.changeFAB(newIcon = Icons.Outlined.Person, newOnClick = {})
+    fabState.changeFAB(newIcon = Icons.Rounded.Person, newOnClick = {})
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize().padding(top = 8.dp)
             .statusBarsPadding()
 
     ) {

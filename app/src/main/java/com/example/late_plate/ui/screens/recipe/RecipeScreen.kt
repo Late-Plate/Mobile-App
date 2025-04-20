@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -58,7 +59,9 @@ fun RecipeScreen(
 ) {
     var saved by remember { mutableStateOf(false) }
     var isAssistant by remember { mutableStateOf(false) }
-    fabState.changeFAB(newIcon = if(isAssistant) Icons.Rounded.Stop else Icons.Rounded.PlayArrow , newOnClick = {isAssistant=!isAssistant})
+    fabState.changeFAB(
+        newIcon = if (isAssistant) Icons.Rounded.Stop else Icons.Rounded.PlayArrow,
+        newOnClick = { isAssistant = !isAssistant })
 
     Column(
         modifier = Modifier
@@ -66,9 +69,17 @@ fun RecipeScreen(
             .statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
-            title = { Text(recipe.title, color = MaterialTheme.colorScheme.onPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            title = {
+                Text(
+                    recipe.title,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Bold
+                )
+            },
             navigationIcon = {
-                IconButton(onClick = { navController.popBackStack()}) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                         tint = MaterialTheme.colorScheme.onPrimary,
@@ -94,7 +105,7 @@ fun RecipeScreen(
             imageUrl = recipe.imageUrl, modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
-                .padding(horizontal = 16.dp,)
+                .padding(horizontal = 16.dp)
         )
         Spacer(Modifier.height(16.dp))
 
@@ -120,7 +131,7 @@ fun RecipeScreen(
 //            }
 //        }
 
-        if(!isAssistant){
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -130,26 +141,27 @@ fun RecipeScreen(
                     rememberScrollState()
                 ), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            if (!isAssistant) {
 //            ExpandableCard(
 //                title = "description",
 //                content = recipe.description,
 //                modifier = Modifier.padding(horizontal = 16.dp)
 //            )
-            ExpandableCard(
-                title = "ingredients",
-                content = recipe.ingredients.toBulletList(),
-                modifier = Modifier.padding(horizontal = 16.dp)
-                , opened = true
-            )
-            ExpandableCard(
-                title = "instructions",
-                content = recipe.directions.toBulletList(),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+                ExpandableCard(
+                    title = "ingredients",
+                    content = recipe.ingredients.toBulletList(),
+                    modifier = Modifier.padding(horizontal = 16.dp), opened = true
+                )
+                ExpandableCard(
+                    title = "instructions",
+                    content = recipe.directions.toBulletList(),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+            } else {
+                RecipeAssistant(modifier = Modifier, recipe)
+            }
             Spacer(modifier = Modifier.height(86.dp))
-        }
-        }else{
-            RecipeAssistant(modifier=Modifier,recipe)
         }
 
 

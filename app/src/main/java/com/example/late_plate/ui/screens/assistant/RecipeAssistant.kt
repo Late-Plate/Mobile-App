@@ -135,9 +135,9 @@ fun RecipeAssistant(modifier: Modifier, recipe: Recipe) {
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = recipe.directions[stepIndex],
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Medium
+
             )
             val timerKey = assistantViewModel.recipeTimerKey.value
             assistantViewModel.allTimerStates[timerKey]?.let { timerState ->
@@ -215,17 +215,16 @@ fun CountdownTimerWithProgress(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CustomButton(
-                onClick = onStart,
-                content = { Text("start timer") })
-
             Text(
-                "Reset",
+                "reset",
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(16.dp))
                     .clickable(onClick = onReset)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )
+            CustomButton(
+                onClick = onStart,
+                content = { Text("start timer") })
         }
     }
 }
