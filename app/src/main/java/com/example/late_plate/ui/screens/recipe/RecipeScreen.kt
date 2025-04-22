@@ -42,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
@@ -74,7 +73,7 @@ fun RecipeScreen(
     inventoryViewModel: InventoryViewModel,
     navController: NavHostController
 ) {
-    ar showAlert by remember { mutableStateOf(false) }
+    var showAlert by remember { mutableStateOf(false) }
     var saved by remember { mutableStateOf(false) }
     var isAssistant by remember { mutableStateOf(false) }
     fabState.changeFAB(
@@ -167,7 +166,12 @@ fun RecipeScreen(
                 )
 
             } else {
-                RecipeAssistant(modifier = Modifier, recipe)
+                RecipeAssistant(
+                    modifier = Modifier, recipe, navController = navController,
+                    onConfirmation = {
+                            ingredients-> inventoryViewModel.removeIngredientsFromInventory(ingredients)
+                    }
+                )
             }
             Spacer(modifier = Modifier.height(86.dp))
         }

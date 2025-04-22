@@ -10,10 +10,11 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import com.example.late_plate.FABState
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.dummy.dummyRecipes
-import com.example.late_plate.ui.screens.assistant.RecipeAssistantScreen
+import com.example.late_plate.ui.screens.FABState
+import com.example.late_plate.ui.screens.assistant.RecipeAssistant
+
 
 import com.example.late_plate.ui.screens.login_signup.LoginScreen
 import com.example.late_plate.ui.screens.home.HomeScreen
@@ -53,7 +54,10 @@ fun AppNavHost(
         composable(Screen.Home.route) {
             Log.d("Home", recipes.toString())
             HomeScreen(
-                data = recipes
+                data = recipes,
+                modifier = Modifier,
+                fabState = fabState,
+                navController = navController
             )
         }
 
@@ -61,7 +65,9 @@ fun AppNavHost(
             RecipeScreen(
                 recipe = dummyRecipes.first(),
                 modifier = Modifier,
-                inventoryViewModel = inventoryViewModel
+                inventoryViewModel = inventoryViewModel,
+                fabState =fabState,
+                navController = navController
             )
         }
 
@@ -73,17 +79,20 @@ fun AppNavHost(
             InventoryScreen(
                 inventoryViewModel,
                 pagerState = pagerState,
-                onEdit = {newVal -> ingredientsViewModel.getMatchingIngredients(newVal)}
+                onEdit = { newVal -> ingredientsViewModel.getMatchingIngredients(newVal) },
+                modifier = Modifier,
+                fabState = fabState
             )
         }
 
         composable(Screen.RecipeAssistant.route){
-            RecipeAssistantScreen(
+            RecipeAssistant(
                 navController = navController,
                 recipe = dummyRecipes.first(),
-                onConfirmation = {
-                    ingredients-> inventoryViewModel.removeIngredientsFromInventory(ingredients)
-                }
+                onConfirmation = { ingredients ->
+                    inventoryViewModel.removeIngredientsFromInventory(ingredients)
+                },
+                modifier = Modifier
             )
         }
     }

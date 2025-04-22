@@ -11,24 +11,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SmartToy
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Fastfood
 import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,10 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +54,7 @@ import com.example.late_plate.ui.screens.HomeRoute
 import com.example.late_plate.ui.screens.IngredientDetectionRoute
 import com.example.late_plate.ui.screens.InventoryRoute
 import com.example.late_plate.ui.screens.RecipeGenerationRoute
+
 
 @Composable
 fun CustomBottomNavigationBar(fabState: FABState, navController: NavHostController) {
@@ -98,7 +90,8 @@ fun CustomBottomNavigationBar(fabState: FABState, navController: NavHostControll
                 BottomNavItem(
                     icons = Icons.Filled.Fastfood to Icons.Outlined.Fastfood,
                     label = "Home",
-                    isSelected = currentRoute == HomeRoute::class.qualifiedName|| currentRoute?.startsWith(HomeRecipeRoute::class.qualifiedName!!)==true,
+                    isSelected = currentRoute == HomeRoute::class.qualifiedName|| currentRoute?.startsWith(
+                        HomeRecipeRoute::class.qualifiedName!!)==true,
                     onClick = {
                         if (currentRoute != HomeRoute::class.qualifiedName) {
                             navController.navigate(HomeRoute) {
@@ -128,7 +121,8 @@ fun CustomBottomNavigationBar(fabState: FABState, navController: NavHostControll
                 BottomNavItem(
                     icons = Icons.Filled.SmartToy to Icons.Outlined.SmartToy,
                     label = "generator",
-                    isSelected = currentRoute == RecipeGenerationRoute::class.qualifiedName||currentRoute?.startsWith(GenRecipeRoute::class.qualifiedName!!)==true,
+                    isSelected = currentRoute == RecipeGenerationRoute::class.qualifiedName||currentRoute?.startsWith(
+                        GenRecipeRoute::class.qualifiedName!!)==true,
                     onClick = {
                         if (currentRoute != RecipeGenerationRoute::class.qualifiedName) {
                             navController.navigate(RecipeGenerationRoute) {

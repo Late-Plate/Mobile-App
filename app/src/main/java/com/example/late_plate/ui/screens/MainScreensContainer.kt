@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Scaffold
@@ -20,7 +21,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.late_plate.dummy.Recipe
-import com.example.late_plate.dummy.dummyRecipes
 import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.screens.home.HomeScreen
 import com.example.late_plate.ui.screens.ingredients_detection.IngredientDetectionScreen
@@ -41,6 +41,7 @@ fun MainScreensContainer(
     inventoryViewModel: InventoryViewModel,
     ingredients: List<String>,
     applicationContext: Context,
+    pagerState: PagerState,
 ) {
     val fabState = rememberFABState(Icons.Outlined.Person, onClick = {})
     val navController = rememberNavController()
@@ -65,8 +66,9 @@ fun MainScreensContainer(
                     modifier = Modifier.padding(innerPadding),
                     onEdit = { newVal ->
                         ingredientsViewModel.getMatchingIngredients(newVal)
-                    }
-                    ,fabState
+                    },
+                    fabState = fabState,
+                    pagerState = pagerState
                 )
             }
             composable<RecipeGenerationRoute> {
@@ -88,7 +90,9 @@ fun MainScreensContainer(
                 RecipeScreen(
                     modifier = Modifier.padding(innerPadding),
                     recipe = arg.recipe,
-                    fabState = fabState,navController
+                    fabState = fabState,
+                    navController = navController,
+                    inventoryViewModel = inventoryViewModel
                 )
             }
             composable<GenRecipeRoute> (typeMap = mapOf(typeOf<Recipe>() to RecipeNavType) ){
@@ -96,7 +100,9 @@ fun MainScreensContainer(
                 RecipeScreen(
                     modifier = Modifier.padding(innerPadding),
                     recipe = arg.recipe,
-                    fabState = fabState,navController
+                    fabState = fabState,
+                    navController = navController,
+                    inventoryViewModel = inventoryViewModel
                 )
             }
         }

@@ -47,10 +47,12 @@ fun RecipeGenerationScreen(
     val recipe by recipeGenerationViewModel.recipeState.collectAsState()
     LaunchedEffect(recipe) {
         recipe?.let {
+            fabState.loading(false)
             navController.navigate(GenRecipeRoute(it))
         }
     }
     fabState.changeFAB(Icons.Rounded.Bolt, newOnClick = {
+        fabState.loading(true)
       recipeGenerationViewModel.getResponse(selectedModel)
     })
     Column(

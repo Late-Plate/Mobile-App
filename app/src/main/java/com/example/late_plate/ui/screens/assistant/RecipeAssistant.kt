@@ -1,7 +1,6 @@
 package com.example.late_plate.ui.screens.assistant
 
-import android.util.Log
-import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import android.annotation.SuppressLint
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -60,6 +60,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,35 +75,35 @@ import com.example.late_plate.ui.components.CustomButton
 import com.example.late_plate.dummy.dummyRecipes
 import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.CustomCard
+import com.example.late_plate.ui.screens.HomeRecipeRoute
 import com.example.late_plate.viewModel.AlarmNotificationHelper
 import com.example.late_plate.viewModel.RecipeAssistantViewModel
 import com.example.late_plate.viewModel.TimerState
 
 @Composable
-fun RecipeAssistant(modifier: Modifier,
-                    recipe: Recipe,
-                    onConfirmation: (List<String>) -> Unit
-                    ) {
+fun RecipeAssistant(
+    modifier: Modifier,
+    recipe: Recipe,
+    onConfirmation: (List<String>) -> Unit,
+    navController: NavController
+) {
     val assistantViewModel: RecipeAssistantViewModel = viewModel()
     LaunchedEffect(recipe) {
         assistantViewModel.loadRecipe(recipe)
     }
+
     val context = LocalContext.current
     val alarmHelper = remember { AlarmNotificationHelper(context) }
 
     val isFinished by assistantViewModel.isFinished
-
     val goToRecipe = remember { mutableStateOf(false) }
 
     if (goToRecipe.value) {
         LaunchedEffect(Unit) {
-            navController.navigate(Screen.SelectedRecipe.route) {
-                popUpTo(Screen.RecipeAssistant.route) { inclusive = true }
-            }
-            goToRecipe.value = false // reset state if needed
+            navController.navigate(HomeRecipeRoute(recipe))
+            goToRecipe.value = false
         }
     }
-
 
     LaunchedEffect(Unit) {
         assistantViewModel.alarmEvents.collect { key ->
@@ -110,16 +112,14 @@ fun RecipeAssistant(modifier: Modifier,
     }
 
     val stepIndex = assistantViewModel.stepIndex.value
-
     val currentRecipeTimers = assistantViewModel.allTimerStates
         .filterKeys { it.recipeName == recipe.title }
-
 
     CustomCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp), contentPadding = 0
-
+            .padding(horizontal = 16.dp),
+        contentPadding = 0
     ) {
         Column(
             modifier = Modifier
@@ -129,7 +129,8 @@ fun RecipeAssistant(modifier: Modifier,
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .padding(top = 16.dp).padding(horizontal = 8.dp)
+                    .padding(top = 16.dp)
+                    .padding(horizontal = 8.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -138,11 +139,14 @@ fun RecipeAssistant(modifier: Modifier,
                         imageVector = Icons.Rounded.ChevronLeft,
                         contentDescription = null,
                         modifier = Modifier
-                            .clip(shape = CircleShape)
+                            .clip(CircleShape)
                             .clickable { assistantViewModel.goToPreviousStep() }
-                            .padding(horizontal = 2.dp, vertical = 2.dp)
+                            .padding(2.dp)
                             .size(24.dp),
-                        tint = if (stepIndex == 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
+                        tint = if (stepIndex == 0)
+                            MaterialTheme.colorScheme.onSurface
+                        else
+                            MaterialTheme.colorScheme.onPrimary
                     )
                     Text(
                         text = "Step ${stepIndex + 1} of ${recipe.directions.size}",
@@ -153,31 +157,37 @@ fun RecipeAssistant(modifier: Modifier,
                         imageVector = Icons.Rounded.ChevronRight,
                         contentDescription = null,
                         modifier = Modifier
-                            .clip(shape = CircleShape)
+                            .clip(CircleShape)
                             .clickable { assistantViewModel.goToNextStep(recipe.directions.size) }
-                            .padding(horizontal = 2.dp, vertical = 2.dp)
+                            .padding(2.dp)
                             .size(24.dp),
-                        tint = if (stepIndex == recipe.directions.size - 1) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
+                        tint = if (stepIndex == recipe.directions.size - 1)
+                            MaterialTheme.colorScheme.onSurface
+                        else
+                            MaterialTheme.colorScheme.onPrimary
                     )
                 }
+
                 StepsIcons(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .size(28.dp),
-                    recipe.directions[stepIndex]
+                    direction = recipe.directions[stepIndex]
                 )
             }
+
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                 color = MaterialTheme.colorScheme.onSurface
             )
+
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = recipe.directions[stepIndex],
                 fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onPrimary,
-
             )
+
             val timerKey = assistantViewModel.recipeTimerKey.value
             assistantViewModel.allTimerStates[timerKey]?.let { timerState ->
                 if (timerState.totalTime > 0) {
@@ -195,25 +205,39 @@ fun RecipeAssistant(modifier: Modifier,
                             }
                         }
                     )
-                }
-                else{
-                    Spacer(modifier=Modifier.height(16.dp))
+                } else {
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
-
-
         }
     }
 
-    assistantViewModel.finishedTimers.values.forEach { (key, state) ->
+    assistantViewModel.finishedTimers.values.forEach { (key, _) ->
         TimerAlarmDialog(
             recipeName = key.recipeName,
             stepIndex = key.stepIndex,
             onDismiss = { assistantViewModel.dismissAlarm(key) }
         )
     }
-}
 
+    if (isFinished) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            RecipeFinishedPopUp(
+                onConfirmation = {
+                    onConfirmation(recipe.ingredients)
+                    goToRecipe.value = true
+                    assistantViewModel.setIsFinished(false)
+                },
+                onCancel = { assistantViewModel.setIsFinished(false) }
+            )
+        }
+    }
+}
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -233,9 +257,9 @@ fun CountdownTimerWithProgress(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp).padding(bottom = 16.dp)
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp)
     ) {
-
         Text(
             text = String.format("%02d:%02d:%02d", hours, minutes, seconds),
             fontSize = 28.sp,
@@ -245,12 +269,12 @@ fun CountdownTimerWithProgress(
 
         LinearProgressIndicator(
             progress = { progress },
-            modifier = Modifier
-                .padding(vertical = 16.dp),
+            modifier = Modifier.padding(vertical = 16.dp),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.onSurface,
-            StrokeCap.Round,
+            strokeCap = StrokeCap.Round
         )
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -258,132 +282,73 @@ fun CountdownTimerWithProgress(
             Text(
                 "reset",
                 modifier = Modifier
-                    .clip(shape = RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
                     .clickable(onClick = onReset)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )
             CustomButton(
                 onClick = onStart,
-                content = { Text("start timer") })
+                content = { Text("start timer") }
+            )
         }
     }
 }
-
 
 @Composable
 fun StepsIcons(modifier: Modifier, direction: String) {
     val lowercasedDirection = direction.lowercase()
 
-    if (lowercasedDirection.contains("oven") || lowercasedDirection.contains("heat")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.LocalFireDepartment,
-            contentDescription = "Heat/Oven",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("combine") || lowercasedDirection.contains("mix") || lowercasedDirection.contains(
-            "stir"
-        )
-    ) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.AutoMirrored.Outlined.RotateLeft,
-            contentDescription = "Combine/Mix/Stir",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("blend") || lowercasedDirection.contains("puree")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.Blender,
-            contentDescription = "Blend/Puree",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("bake")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.Cookie,
-            contentDescription = "Bake",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("chop") || lowercasedDirection.contains("cut") || lowercasedDirection.contains(
-            "dice"
-        )
-    ) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.ContentCut, // Assuming you import this custom icon
-            contentDescription = "Chop/Cut/Dice",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("fry") || lowercasedDirection.contains("sauté")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.PanTool,
-            contentDescription = "Fry/Sauté",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("boil") || lowercasedDirection.contains("simmer")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.SoupKitchen,
-            contentDescription = "Boil/Simmer",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("rest") || lowercasedDirection.contains("wait") || lowercasedDirection.contains(
-            "chill"
-        )
-    ) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.HourglassEmpty,
-            contentDescription = "Rest/Wait/Chill",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("serve") || lowercasedDirection.contains("garnish")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.Restaurant,
-            contentDescription = "Serve/Garnish",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("wash") || lowercasedDirection.contains("rinse")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.Wash,
-            contentDescription = "Wash/Rinse",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("grind")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.Grain,
-            contentDescription = "Grind",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else if (lowercasedDirection.contains("fold")) {
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.TurnSlightRight,
-            contentDescription = "Fold",
-            tint = MaterialTheme.colorScheme.primary,
-        )
-    } else {
-
-        Icon(
-            modifier = modifier,
-            imageVector = Icons.Rounded.Receipt,
-            contentDescription = "Step",
-            tint = MaterialTheme.colorScheme.onSurface,
-        )
+    when {
+        lowercasedDirection.contains("oven") || lowercasedDirection.contains("heat") -> {
+            Icon(
+                modifier = modifier,
+                imageVector = Icons.Rounded.LocalFireDepartment,
+                contentDescription = "Heat/Oven",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        lowercasedDirection.contains("combine") || lowercasedDirection.contains("mix") || lowercasedDirection.contains("stir") -> {
+            Icon(
+                modifier = modifier,
+                imageVector = Icons.AutoMirrored.Outlined.RotateLeft,
+                contentDescription = "Combine/Mix/Stir",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        lowercasedDirection.contains("blend") || lowercasedDirection.contains("puree") -> {
+            Icon(
+                modifier = modifier,
+                imageVector = Icons.Rounded.Blender,
+                contentDescription = "Blend/Puree",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        lowercasedDirection.contains("bake") -> {
+            Icon(
+                modifier = modifier,
+                imageVector = Icons.Rounded.Cookie,
+                contentDescription = "Bake",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        lowercasedDirection.contains("chop") || lowercasedDirection.contains("cut") -> {
+            Icon(
+                modifier = modifier,
+                imageVector = Icons.Rounded.ContentCut,
+                contentDescription = "Chop/Cut",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        else -> {} // No icon shown if no keywords matched
     }
-
+}
 @Composable
 fun RecipeFinishedPopUp(
-    onConfirmation: ()-> Unit,
-    onCancel: ()-> Unit
-){
+    onConfirmation: () -> Unit,
+    onCancel: () -> Unit
+) {
     Card(
-        modifier= Modifier
+        modifier = Modifier
             .shadow(8.dp, shape = RoundedCornerShape(16.dp))
             .border(
                 width = 1.dp, // Border thickness
@@ -429,7 +394,7 @@ fun RecipeFinishedPopUp(
             ) {
                 Button(
                     modifier = Modifier.weight(1f),
-                    onClick = {onConfirmation()},
+                    onClick = { onConfirmation() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -442,7 +407,7 @@ fun RecipeFinishedPopUp(
                 }
                 Button(
                     modifier = Modifier.weight(1f),
-                    onClick = {onCancel()},
+                    onClick = { onCancel() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorResource(R.color.cancel_btn_color),
                         contentColor = MaterialTheme.colorScheme.onPrimary

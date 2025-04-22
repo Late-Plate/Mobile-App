@@ -7,31 +7,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -46,15 +34,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.late_plate.R
 import com.example.late_plate.ui.components.CustomButton
 import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.ui.components.ExpandableSelectionCard
@@ -74,15 +59,15 @@ fun CustomInventoryPopup(
     type: String = "kg",
     status: InventoryPopUpState,
     selectNER: MutableState<Boolean>,
-    dialogType: String
-){
+    dialogType: String,
+) {
     val inputName = remember { mutableStateOf(name) }
-    val inputQuantity = remember { mutableStateOf(quantity.toString()) }
-    val inputType = remember { mutableStateOf(type) }
-    var selectFromNER = remember { mutableStateOf(selectNER) }
-    val btnText = if(status == InventoryPopUpState.ADD) "Add" else "Update"
+    val inputQuantity = remember { mutableStateOf("") }
+    var inputType by remember { mutableStateOf("kg") }
+    val selectFromNER = remember { mutableStateOf(selectNER) }
+    val btnText = if (status == InventoryPopUpState.ADD) "Add" else "Update"
 
-    if (showDialog){
+    if (showDialog) {
         Dialog(
             onDismissRequest = onDismiss,
             properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -97,25 +82,23 @@ fun CustomInventoryPopup(
             {
                 Box(
                     modifier = Modifier
-                        .fillMaxHeight(height)
                         .fillMaxWidth()
                 ) {
                     CustomCard(contentPadding = 0) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxSize()
+                            modifier = Modifier.wrapContentWidth()
+
+                            , horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Row(
                                 modifier = Modifier
-                                    .weight(0.11f)
-                                    .padding(top = 8.dp)
+                                    .padding(16.dp)
                             ) {
                                 Text(
                                     text = "${btnText} ${dialogType} item",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.weight(1f)
                                 )
 
                             }
@@ -127,8 +110,8 @@ fun CustomInventoryPopup(
                             CustomTextFieldPopupSearch(
                                 input = inputName,
                                 selected = selectFromNER.value,
-                                placeholderText = "Enter item's name",
-                                modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+                                placeholderText = "item name",
+                                modifier = Modifier.padding(horizontal = 16.dp),
                                 onEdit = onEdit,
                                 readOnly = status == InventoryPopUpState.UPDATE,
                                 isGrocery = if(dialogType == "Inventory") false else true
@@ -191,7 +174,8 @@ fun CustomInventoryPopup(
             }
         }
 
-
+    }
+}
 
 @Composable
 fun CustomTextFieldPopup(
@@ -203,10 +187,10 @@ fun CustomTextFieldPopup(
     OutlinedTextField(
         value = input.value,
         onValueChange = {
-             if (it.matches(Regex("^\\d*\\.?\\d*\$"))) {
-                 input.value = it
-             }
-            },
+            if (it.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                input.value = it
+            }
+        },
 
         placeholder = { Text(text = placeholderText, fontSize = 14.sp) },
         textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
@@ -269,10 +253,10 @@ fun CustomTextFieldPopupSearch(
         if (expanded && !isGrocery) {
             Box(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .heightIn(max = 96.dp)
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp) // Set max height for scrolling
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable { expanded = false }
+                    .clickable { expanded = false } // Dismiss on click outside
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth()
@@ -292,5 +276,3 @@ fun CustomTextFieldPopupSearch(
         }
     }
 }
-
-

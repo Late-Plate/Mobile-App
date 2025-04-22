@@ -124,6 +124,7 @@ dependencies {
     // Dependency Injection (Hilt and Koin)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.firebase.common.ktx)
     kapt(libs.hilt.android.compiler)
     implementation("com.google.dagger:hilt-android:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")

@@ -74,21 +74,8 @@ import com.example.late_plate.ui.components.SwipeToDeleteContainer
 import com.example.late_plate.ui.screens.FABState
 import com.example.late_plate.viewModel.InventoryPopUpState
 import kotlinx.coroutines.launch
-
-
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-//import androidx.compose.foundation.pager.PagerState
-import androidx.compose.runtime.saveable.rememberSaveable
-//import androidx.compose.foundation.pager.PagerDefaults
-
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.colorResource
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryScreen(
     inventoryViewModel: InventoryViewModel,
@@ -97,25 +84,19 @@ fun InventoryScreen(
     pagerState: PagerState,
     fabState: FABState
 ) {
-
     val tabTitles = listOf("Inventory", "Grocery List")
-
-
-
     val coroutineScope = rememberCoroutineScope()
-    modifier: Modifier = Modifier,
-    onEdit: (String) -> List<String>,
-    fabState: FABState
-) {
-
     var showAlert by remember { mutableStateOf(false) }
     fabState.run {
         changeFAB(newIcon = Icons.Rounded.Add, newOnClick = {
 
             inventoryViewModel.addOrUpdate = InventoryPopUpState.ADD
-            inventoryViewModel.openDialog()
-
-
+            if(pagerState.currentPage==0){
+                inventoryViewModel.openInventoryDialog()
+            }
+            else{
+                inventoryViewModel.openGroceryDialog()
+            }
         })
     }
 
@@ -131,7 +112,10 @@ fun InventoryScreen(
     )
 
 
-    Column {
+    Column (
+        modifier = modifier
+
+    ){
         TabRow(selectedTabIndex = pagerState.currentPage) {
             tabTitles.forEachIndexed { index, title ->
                 Tab(
@@ -206,12 +190,6 @@ fun InventoryScreen(
 
     }
 }
-
-
-//    InventoryTab(inventoryViewModel, iconsList) {newVal-> onEdit(newVal) }
-
-}
-
 
 
 @Composable

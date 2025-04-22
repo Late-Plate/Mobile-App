@@ -5,14 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.compose.rememberNavController
 import com.example.late_plate.data.InventoryDataStore
 import com.example.late_plate.ui.screens.MainScreensContainer
-import com.example.late_plate.navigation.AppNavHost
-import com.example.late_plate.navigation.Screen
-import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.theme.Late_plateTheme
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
@@ -49,7 +46,14 @@ class MainActivity : ComponentActivity() {
             val dataStore = InventoryDataStore(this)
 
             Late_plateTheme {
-                MainScreensContainer(ingredientsViewModel,recommendationViewModel,inventoryViewModel,ingredients,applicationContext)
+                MainScreensContainer(
+                    ingredientsViewModel,
+                    recommendationViewModel,
+                    inventoryViewModel,
+                    ingredients,
+                    applicationContext,
+                    pagerState
+                )
             }
         }
     }
