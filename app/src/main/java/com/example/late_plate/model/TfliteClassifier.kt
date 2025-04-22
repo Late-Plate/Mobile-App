@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock
 
 class TfliteClassifier(
     val context: Context,
-    private val threshold: Float = 0.5f,
+    private var threshold: Float=0.5f,
     model: String = "best_float16.tflite"
 ) : YOLOClassifier {
 
@@ -24,7 +24,13 @@ class TfliteClassifier(
     }
     private val modelLock = ReentrantLock()
 
-    override fun classify(byteBuffer: ByteBuffer): List<Classification> {
+    override fun classify(byteBuffer: ByteBuffer,score:String): List<Classification> {
+        threshold=when (score) {
+            "Low" -> 0.3f
+            "Medium" -> 0.5f
+            "High" -> 0.7f
+            else -> 0f
+        }
         modelLock.lock()
         try {
             val outputArray = Array(1) { Array(71) { FloatArray(8400) } }

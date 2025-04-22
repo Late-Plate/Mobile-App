@@ -170,33 +170,29 @@ data class RecipeTimerKey(
     val stepIndex: Int
 )
 
-fun extractTime(step: String): Long{
+fun extractTime(step: String): Long {
     val words = step.split(" ", "-")
     var totalMilliseconds: Long = 0
 
     words.forEachIndexed { index, word ->
         when {
-            word.lowercase().contains("hour") && index > 0 -> {
-                val hours = words[index - 1].toLongOrNull()
-                Log.d("HOURS!", "Contains Hours")
-                Log.d("HOURS!", "Extracted hours: $hours")
-                if (hours != null) {
-                    totalMilliseconds += hours * 60 * 60 * 1000
-                }
+            word.lowercase().startsWith("hour") -> {
+                val numberPart = words.getOrNull(index - 1)
+                val hours = numberPart?.replace(Regex("\\D"), "")?.toLongOrNull() ?: 1L
+                totalMilliseconds += hours * 60 * 60 * 1000
             }
-            word.lowercase().contains("minute") && index > 0 -> {
-                val minutes = words[index - 1].toLongOrNull()
-                Log.d("MINUTES!", "Contains Minutes")
-                Log.d("MINUTES!", "Extracted minutes: $minutes")
-                if (minutes != null) {
-                    totalMilliseconds += minutes * 60 * 1000
-                }
+            word.lowercase().startsWith("minute") -> {
+                val numberPart = words.getOrNull(index - 1)
+                val minutes = numberPart?.replace(Regex("\\D"), "")?.toLongOrNull() ?: 1L
+                totalMilliseconds += minutes * 60 * 1000
+            }
+            word.lowercase().startsWith("second") -> {
+                val numberPart = words.getOrNull(index - 1)
+                val seconds = numberPart?.replace(Regex("\\D"), "")?.toLongOrNull() ?: 1L
+                totalMilliseconds += seconds * 1000
             }
         }
     }
-
     Log.d("TIMER Extracted", "Time: $totalMilliseconds ms")
-
     return totalMilliseconds
-
 }

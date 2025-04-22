@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ExpandableCard(modifier: Modifier,title: String, content: String) {
-    var expanded by remember { mutableStateOf(false) }
+fun ExpandableCard(modifier: Modifier,title: String, content: String,opened:Boolean=false) {
+    var expanded by remember { mutableStateOf(opened) }
 
 
     CustomCard (modifier = modifier, contentPadding = 0)

@@ -2,10 +2,13 @@ package com.example.late_plate.ui.screens.assistant
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Button
@@ -22,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,26 +52,28 @@ fun TimerAlarmDialog(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
+                , modifier = Modifier.wrapContentHeight()
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.primary)
-                        .padding(top = 16.dp)
+                        .padding(16.dp)
                 ) {
                     Text(
                         text = recipeName,
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 8.dp)
                     )
                     Icon(
                         painter = painterResource(R.drawable.alarm_icon),
                         contentDescription = "Alarm Icon",
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
-                            .padding(16.dp)
                             .size(60.dp)
                             .align(Alignment.CenterHorizontally)
                     )
@@ -79,28 +85,17 @@ fun TimerAlarmDialog(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                 )
-                Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                Text(
+                    "okay",
                     modifier = Modifier.padding(bottom = 16.dp)
-                ) {
-                    Text(
-                        text = "OK",
-                    )
-                }
+                        .clip(shape = RoundedCornerShape(16.dp))
+                        .clickable(onClick = onDismiss)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                    , color = MaterialTheme.colorScheme.primary
+                )
+
 
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewAlarm(){
-    TimerAlarmDialog(dummyRecipes[0].title, 1, {})
 }

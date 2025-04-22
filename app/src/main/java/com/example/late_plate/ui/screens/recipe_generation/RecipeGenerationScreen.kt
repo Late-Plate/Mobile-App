@@ -1,132 +1,163 @@
 package com.example.late_plate.ui.screens.recipe_generation
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material3.*
-import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.late_plate.R
+import androidx.navigation.NavController
+import com.example.late_plate.dummy.Recipe
+import com.example.late_plate.ui.components.CustomCard
+import com.example.late_plate.ui.components.CustomTextField
+import com.example.late_plate.ui.components.ExpandableSelectionCard
 import com.example.late_plate.ui.components.IngredientChip
 import com.example.late_plate.ui.components.SelectedItem
+import com.example.late_plate.ui.screens.FABState
+import com.example.late_plate.ui.screens.GenRecipeRoute
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.RecipeGenerationViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun RecipeGenerationScreen(ingredientsViewModel: IngredientsViewModel,
-                           modifier: Modifier = Modifier,
-                           recipeGenerationViewModel:RecipeGenerationViewModel =hiltViewModel()) {
+fun RecipeGenerationScreen(
+    modifier: Modifier = Modifier,
+    ingredientsViewModel: IngredientsViewModel,
+    recipeGenerationViewModel: RecipeGenerationViewModel = hiltViewModel(),
+    fabState: FABState,
+    navController: NavController
+) {
+    var selectedModel by remember { mutableStateOf("Llama") }
+    val models = listOf("GPT-2","Llama")
     val defaultIngredientsList = listOf("Rice", "Chicken", "Beans", "Salt")
     recipeGenerationViewModel.setIngredients(defaultIngredientsList)
     var searchText by remember { mutableStateOf("") }
     val selectedIngredients = remember { mutableStateListOf<String>() }
-
+    val recipe by recipeGenerationViewModel.recipeState.collectAsState()
+    LaunchedEffect(recipe) {
+        recipe?.let {
+            navController.navigate(GenRecipeRoute(it))
+        }
+    }
+    fabState.changeFAB(Icons.Rounded.Bolt, newOnClick = {
+      recipeGenerationViewModel.getResponse(selectedModel)
+    })
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
-            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
+            .statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top App Bar
-        TopAppBar(
-            title = { Text("Recipe Generation", color = MaterialTheme.colorScheme.onPrimary) },
-            navigationIcon = {
-                IconButton(onClick = { /* TODO: Handle back navigation */ }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        contentDescription = "Back"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-            )
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Ingredients Selection Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        CustomCard(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(), contentPadding = 0
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(vertical = 16.dp)
+            ) {
                 Text(
-                    text = stringResource(R.string.what_ingredients_do_you_have),
+                    "Got Ingredients? Get Inspired!",
                     fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(16.dp)
+
+                    )
+                Text(
+                    "\"Unlock unique AI generated recipes with only one click\"",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Ingredient Chips
-                LazyRow(modifier = Modifier.padding(8.dp)) {
+                LazyRow(modifier = Modifier) {
+                    item { Spacer(modifier=Modifier.width(16.dp)) }
 
                     items(recipeGenerationViewModel.ingredients.value) { item ->
-                        IngredientChip(item, false) {
+                        IngredientChip(modifier = Modifier.padding(4.dp), item, false) {
                             if (it !in selectedIngredients) {
                                 selectedIngredients.add(it)
+                                recipeGenerationViewModel.setSelectedIngredients(selectedIngredients)
+                                Log.d("selected",selectedIngredients.toString())
                             }
+                            searchText=""
                         }
                     }
+                    item { Spacer(modifier=Modifier.width(16.dp)) }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Search Field
-                TextField(
+                Spacer(modifier = Modifier.height(16.dp))
+                CustomTextField(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    placeholder = "Search ingredients",
                     value = searchText,
                     onValueChange = {
                         searchText = it
                         if (it.isNotEmpty()) {
-                           recipeGenerationViewModel.setIngredients( ingredientsViewModel.getMatchingIngredients(it))
+                            recipeGenerationViewModel.setIngredients(
+                                ingredientsViewModel.getMatchingIngredients(
+                                    it
+                                )
+                            )
                         } else {
                             recipeGenerationViewModel.setIngredients(defaultIngredientsList)
                         }
-                    },
-                    placeholder = { Text("Look for ingredients") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    singleLine = true
-                )
+                    })
+
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Button(
-                    onClick = { recipeGenerationViewModel.parseList() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text("Generate Recipe")
-                }
 
             }
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Selected Ingredients List
-        LazyColumn {
-            items(selectedIngredients) { item ->
-                SelectedItem(item, onClick ={
-                    selectedIngredients.remove(it)
-                })
+        ExpandableSelectionCard(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            options = models,
+            selectedOption = selectedModel,
+            onOptionSelected = { selectedModel = it },
+            label = "AI Model"
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        val scrollState = rememberScrollState()
+        Column(modifier = Modifier.verticalScroll(scrollState).fillMaxSize()) {
+            if (selectedIngredients.isNotEmpty()) {
+                FlowRow(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    selectedIngredients.forEach { item ->
+                        SelectedItem(item, onClick = {
+                            selectedIngredients.remove(it)
+                        })
+                    }
+                    Spacer(modifier = Modifier.fillMaxWidth().height(86.dp))
+                }
+            } else {
+                Text(
+                    "selected ingredients will show up here!",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 13.sp,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(Alignment.CenterHorizontally,)
+                )
             }
         }
     }

@@ -21,7 +21,7 @@ class RecipeGenerationClient (
     suspend fun getTopRecipes(userId:Int): Result<List<Recipe>, NetworkError> {
         val response = try {
             httpClient.post(
-                urlString = "https://crow-square-absolutely.ngrok-free.app/combined_recommendations"
+                urlString = "https://quagga-creative-pika.ngrok-free.app/combined_recommendations"
             ) {
                 contentType(ContentType.Application.Json) // Set content type to JSON
                 setBody(RecommendatinRequest(userId))
@@ -52,10 +52,10 @@ class RecipeGenerationClient (
 
         }
     }
-    suspend fun generateRecipe(prompt: String): Result<String,NetworkError>{
+    suspend fun generateRecipe(prompt: String,model:String): Result<String,NetworkError>{
         val response= try{
             httpClient.post(
-                urlString = "https://crow-square-absolutely.ngrok-free.app/llama"
+                urlString = "https://crow-square-absolutely.ngrok-free.app/$model"
             ){
                 contentType(ContentType.Application.Json) // Set content type to JSON
                 setBody(GenerateRecipeRequest(prompt))

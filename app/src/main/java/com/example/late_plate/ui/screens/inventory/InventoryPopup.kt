@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -42,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +55,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.late_plate.R
+import com.example.late_plate.ui.components.CustomButton
 import com.example.late_plate.ui.components.CustomCard
+import com.example.late_plate.ui.components.ExpandableSelectionCard
 import com.example.late_plate.viewModel.InventoryPopUpState
 
 
@@ -94,8 +99,8 @@ fun CustomInventoryPopup(
                     modifier = Modifier
                         .fillMaxHeight(height)
                         .fillMaxWidth()
-                ){
-                    CustomCard {
+                ) {
+                    CustomCard(contentPadding = 0) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -112,141 +117,72 @@ fun CustomInventoryPopup(
                                     color = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.weight(1f)
                                 )
-                                IconButton(
-                                    onClick = {onDismiss()}
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
+
                             }
                             HorizontalDivider(
-                                modifier = Modifier
-                                    .padding(top = 8.dp)
-                                    .weight(0.01f),
+                                modifier = Modifier.padding(horizontal = 16.dp),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            Row(
-                                modifier = Modifier.weight(0.1f)
-                            ) {
-                                Text(
-                                    modifier = Modifier.padding(top = 10.dp),
-                                    text = "Item Name",
-                                    fontWeight = FontWeight.Medium,
-                                    color = colorResource(R.color.grey_white)
-                                )
-                                Box(
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "*",
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
+                            Spacer(Modifier.height(16.dp))
                             CustomTextFieldPopupSearch(
                                 input = inputName,
                                 selected = selectFromNER.value,
                                 placeholderText = "Enter item's name",
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .wrapContentHeight(),
+                                modifier = Modifier.wrapContentWidth().wrapContentHeight(),
                                 onEdit = onEdit,
                                 readOnly = status == InventoryPopUpState.UPDATE,
                                 isGrocery = if(dialogType == "Inventory") false else true
                             )
-                            
+                            Spacer(Modifier.height(16.dp))
+
                             Row(
-                                modifier = Modifier.weight(0.1f)
+                                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
+                                verticalAlignment = Alignment.Top,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Text(
-                                    modifier = Modifier.padding(top = 10.dp),
-                                    text = "Quantity",
-                                    fontWeight = FontWeight.Medium,
-                                    color = colorResource(R.color.grey_white)
+                                CustomTextFieldPopup(
+                                    input = inputQuantity,
+                                    placeholderText = "Quantity",
+                                    modifier = Modifier.weight(1.1f),
+                                    keyboardType = KeyboardType.Number
                                 )
-                                Box(
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "*",
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                            Row(
-                                modifier = Modifier
-                                    .weight(0.17f)
-                                    .wrapContentHeight(),
-                            ) {
-                                Box(modifier = Modifier.weight(2f)) { // ✅ Wrap in Box to allow proper weight distribution
-                                    CustomTextFieldPopup(
-                                        input = inputQuantity,
-                                        placeholderText = "Enter Quantity",
-                                        modifier = Modifier
-                                            .wrapContentWidth()
-                                            .wrapContentHeight(), // ✅ Ensure it takes full width inside Box
-                                        keyboardType = KeyboardType.Number
-                                    )
-                                }
-                                Box(modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()) {
-                                    ComboBox(inputType, modifier = Modifier
-                                        .wrapContentWidth()
-                                        .wrapContentHeight())
-                                }
+                                val options = listOf("kg", "gm", "unit")
+                                ExpandableSelectionCard(
+                                    selectedOption = inputType,
+                                    options = options,
+                                    onOptionSelected = { inputType = it },
+                                    label = "measure",
+                                    modifier = Modifier.weight(1f)
+                                )
                             }
                             HorizontalDivider(
-                                modifier = Modifier
-                                    .padding(top = 16.dp)
-                                    .weight(0.01f),
+                                modifier = Modifier.padding(horizontal = 16.dp),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Row(
                                 modifier = Modifier
-                                    .weight(0.2f)
-                                    .padding(top = 16.dp),
+                                    .padding( 16.dp),
                                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Button(
-                                    onClick = onDismiss,
-                                    shape = RoundedCornerShape(34),
-                                    modifier = Modifier.weight(1f),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = colorResource(R.color.cancel_btn_color),  // ✅ Background color
-                                        contentColor = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                ) {
-                                    Text(
-                                        text = "Cancel",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp
-                                    )
-                                }
-
-                                Button(
-                                    onClick = {
-                                        if(inputName.value.isNotEmpty() && inputQuantity.value.isNotEmpty())
-                                            onConfirm(inputName.value, inputQuantity.value.toFloat(), inputType.value)
-
+                            ) {
+                                Text(
+                                    "cancel",
+                                    modifier = Modifier
+                                        .clip(shape = RoundedCornerShape(16.dp))
+                                        .clickable(onClick =  onDismiss)
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                                CustomButton(
+                                    onClick = {  if (inputName.value.isNotEmpty() && inputQuantity.value.isNotEmpty())
+                                        (if(inputQuantity.value.toFloatOrNull()!=null) inputQuantity.value.toFloatOrNull() else 0f)?.let {
+                                            onConfirm(
+                                                inputName.value,
+                                                it,
+                                                inputType
+                                            )
+                                        }
                                     },
-                                    shape = RoundedCornerShape(34),
-                                    modifier = Modifier.weight(1f),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                ) {
-                                    Text(
-                                        text = btnText,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp
-                                    )
-                                }
+                                    content = { Text(btnText) })
                             }
                         }
                     }
@@ -255,72 +191,7 @@ fun CustomInventoryPopup(
             }
         }
 
-    }
 
-
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ComboBox(
-    selectedOption: MutableState<String>,
-    modifier: Modifier
-) {
-    val options = listOf("kg", "packet", "unit")
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it }
-    ) {
-        OutlinedTextField(
-            value = selectedOption.value,
-            onValueChange = {},
-            readOnly = true,
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
-                .padding(4.dp),
-
-            trailingIcon = {
-                Icon(
-                    imageVector = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                    tint = MaterialTheme.colorScheme.primary,
-                    contentDescription = "Dropdown Icon"
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                focusedBorderColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
-                errorBorderColor = MaterialTheme.colorScheme.error
-            )
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        selectedOption.value = option
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PrevCombo(){
-//    ComboBox(modifier = Modifier)
-}
 
 @Composable
 fun CustomTextFieldPopup(
@@ -331,8 +202,13 @@ fun CustomTextFieldPopup(
 ) {
     OutlinedTextField(
         value = input.value,
-        onValueChange = { input.value = it },
-        placeholder = { Text(text = placeholderText, fontSize = 14.sp)},
+        onValueChange = {
+             if (it.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                 input.value = it
+             }
+            },
+
+        placeholder = { Text(text = placeholderText, fontSize = 14.sp) },
         textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
@@ -341,11 +217,9 @@ fun CustomTextFieldPopup(
             unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
             errorBorderColor = MaterialTheme.colorScheme.error
         ),
-        modifier = modifier // ✅ Use the passed modifier
-            .fillMaxWidth()
-            .padding(4.dp),
+        modifier = modifier,
         keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = keyboardType  // ✅ Correct usage
+            keyboardType = keyboardType
         ),
     )
 }
@@ -395,10 +269,10 @@ fun CustomTextFieldPopupSearch(
         if (expanded && !isGrocery) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 200.dp) // Set max height for scrolling
+                    .padding(horizontal = 16.dp)
+                    .heightIn(max = 96.dp)
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable { expanded = false } // Dismiss on click outside
+                    .clickable { expanded = false }
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth()
