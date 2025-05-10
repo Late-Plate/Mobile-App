@@ -100,7 +100,7 @@ fun RecipeAssistant(
 
     if (goToRecipe.value) {
         LaunchedEffect(Unit) {
-            navController.navigate(HomeRecipeRoute(recipe))
+            navController.popBackStack()
             goToRecipe.value = false
         }
     }

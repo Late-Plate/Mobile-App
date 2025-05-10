@@ -39,6 +39,9 @@ class RecipeGenerationViewModel @Inject constructor(val recipeGenerationClient: 
     fun setSelectedIngredients(ingredients:List<String>){
         _selectedIngredients.value=ingredients
     }
+    fun resetRecipe(){
+        _recipeState.value=null
+    }
     fun getResponse(model:String){
         viewModelScope.launch {
             _recipeState.value=parseList(model)
