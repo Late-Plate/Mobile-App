@@ -39,7 +39,7 @@ fun RecommendationCard(modifier: Modifier = Modifier, recipe: Recipe, onClick:((
                     textAlign = TextAlign.Start
                 )
                 Text(
-                    text = recipe.directions.toString(),
+                    text = if(recipe.description.equals("No description available")) recipe.directions.toString() else recipe.description,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(top = 4.dp)

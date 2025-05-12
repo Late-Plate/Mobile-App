@@ -1,8 +1,10 @@
 package com.example.late_plate.ui.screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.PagerState
@@ -11,6 +13,8 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,6 +38,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.reflect.typeOf
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun MainScreensContainer(
     ingredientsViewModel: IngredientsViewModel,
@@ -46,6 +51,7 @@ fun MainScreensContainer(
     val fabState = rememberFABState(Icons.Outlined.Person, onClick = {})
     val navController = rememberNavController()
 
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -54,9 +60,11 @@ fun MainScreensContainer(
     ) { innerPadding ->
         NavHost(navController, startDestination = HomeRoute) {
             composable<HomeRoute> {
+                val recipes by recommendationViewModel.recipes.collectAsState()
+                Log.d("RECIPES", recipes.toString())
                 HomeScreen(
                     modifier = Modifier.padding(innerPadding),
-                    data = recommendationViewModel.recipes.value, fabState = fabState
+                    data = recipes, fabState = fabState
                     ,navController
                 )
             }

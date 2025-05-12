@@ -21,4 +21,9 @@ object NetworkModule {
     fun provideRecipeClient(httpClient: HttpClient): RecipeGenerationClient {
         return RecipeGenerationClient(httpClient)
     }
+
+    @Provides
+    fun provideRecipeImageDescriptionClient(httpClient: HttpClient): RecipeImageDescriptionClient {
+        return RecipeImageDescriptionClient(httpClient)
+    }
 }
