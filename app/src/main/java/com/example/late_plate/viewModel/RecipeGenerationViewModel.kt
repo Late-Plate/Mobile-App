@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.late_plate.dummy.Recipe
 import com.example.late_plate.network.RecipeGenerationClient
+import com.example.late_plate.network.RecipeImageDescriptionClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,10 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
-class RecipeGenerationViewModel @Inject constructor(val recipeGenerationClient: RecipeGenerationClient) : ViewModel() {
+class RecipeGenerationViewModel @Inject constructor(
+    val recipeGenerationClient: RecipeGenerationClient,
+    val recipeImageDescriptionClient: RecipeImageDescriptionClient
+) : ViewModel() {
     private val _recipeStart="<RECIPE_START>"
     private val _inputStart="<INPUT_START>"
     private val _nextInput="<NEXT_INPUT>"
@@ -72,7 +76,7 @@ class RecipeGenerationViewModel @Inject constructor(val recipeGenerationClient: 
 
         }
     }
-    fun parseResponse(response:String):Recipe{
+    suspend fun parseResponse(response:String):Recipe{
         Log.d("response",response)
        var responseHalf= response.split(_ingredientStart).last()
         val ingredientList=responseHalf.split(_nextIngredient).toMutableList()
@@ -87,10 +91,19 @@ class RecipeGenerationViewModel @Inject constructor(val recipeGenerationClient: 
         instructionList.add(responseHalf.split(_instructionEnd).first())
         responseHalf=responseHalf.split(_titleStart).last()
         val title=responseHalf.split(_titleEnd).first()
+
+        val imageUrl = try {
+            recipeImageDescriptionClient.fetchImageUrlFromEdamam(title)
+                ?: "https://via.placeholder.com/300"
+        } catch (e: Exception) {
+            Log.e("RecipeGenVM", "Image fetch failed", e)
+            "https://via.placeholder.com/300"
+        }
+
         val recipe=Recipe(
             title = title,
             description = "description",
-            imageUrl = "",
+            imageUrl = imageUrl,
             difficulty = "difficulty",
             time = "time",
             ingredients = ingredientList,

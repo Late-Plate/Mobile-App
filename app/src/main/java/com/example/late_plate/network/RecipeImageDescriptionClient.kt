@@ -28,11 +28,11 @@ class RecipeImageDescriptionClient(
     private val accessKey = "2Ck1bQTKtU8jdPo13uCRjkMCKjthGerI5ZCp77jHEqU"
     private val geminiApiKey = "AIzaSyCfP5Ob-fsYZ-eXzBDRJg_yiVzezLMHUlw"
 
-    suspend fun fetchImageUrlFromEdamam(recipe: Recipe): String? {
+    suspend fun fetchImageUrlFromEdamam(recipeName: String): String? {
 //        val query = URLEncoder.encode("$recipe.title", "UTF-8")
         val appId = "02d6766a"
         val appKey = "67f4487dd83084f501edfb2f43855447"
-        val url = "https://api.edamam.com/api/recipes/v2?type=public&q=${recipe.title} food&app_id=$appId&app_key=$appKey"
+        val url = "https://api.edamam.com/api/recipes/v2?type=public&q=${recipeName} food&app_id=$appId&app_key=$appKey"
 
         return try {
             val response: EdamamResponse = httpClient.get(url) {

@@ -66,7 +66,7 @@ class RecommendationViewModel @Inject constructor(
                             Log.d("RecommendationVM", "Starting image fetch for ${recipe.title}")
 
                             // Then update image
-                            val imageUrl = recipeImageDescriptionClient.fetchImageUrlFromEdamam(recipe)
+                            val imageUrl = recipeImageDescriptionClient.fetchImageUrlFromEdamam(recipe.title)
                                 ?: "https://via.placeholder.com/300"
 
                             Log.d("RecommendationVM", "Image URL received for ${recipe.title}: $imageUrl")
