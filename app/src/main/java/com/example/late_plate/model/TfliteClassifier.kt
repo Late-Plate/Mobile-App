@@ -29,7 +29,7 @@ class TfliteClassifier(
             "Low" -> 0.3f
             "Medium" -> 0.5f
             "High" -> 0.7f
-            else -> 0f
+            else -> 0.5f
         }
         modelLock.lock()
         try {
@@ -80,7 +80,7 @@ class TfliteClassifier(
 
         return topPredictions.values.sortedByDescending { it.score }
     }
-    protected fun finalize() {
+    fun close() {
         interpreter.close()
     }
 }
