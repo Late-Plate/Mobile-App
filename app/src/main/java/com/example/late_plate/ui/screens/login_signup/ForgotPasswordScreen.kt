@@ -19,6 +19,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
+import com.example.late_plate.ui.screens.ForgotPasswordRoute
+import com.example.late_plate.ui.screens.LoginRoute
 import com.example.late_plate.viewModel.AuthenticationViewModel
 import kotlinx.coroutines.delay
 
@@ -45,9 +47,9 @@ fun ForgotPasswordScreen(
 
                 if (navController.currentDestination?.route != Screen.Login.route) {
                     Log.d("NavController", "Navigating to Login")
-                    navController.navigate(Screen.Login.route) {
+                    navController.navigate(LoginRoute) {
                         Log.d("NavController", "Popping up to ForgotPass: inclusive=true")
-                        popUpTo(Screen.ForgotPass.route) { inclusive = true }
+                        popUpTo(ForgotPasswordRoute) { inclusive = true }
                     }
                 } else {
                     Log.d("NavController", "Already at Login screen, no navigation needed")

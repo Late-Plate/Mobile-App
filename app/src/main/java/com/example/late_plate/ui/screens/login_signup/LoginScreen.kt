@@ -33,6 +33,10 @@ import com.example.late_plate.R
 import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
 import com.example.late_plate.ui.components.CustomCard
+import com.example.late_plate.ui.screens.ForgotPasswordRoute
+import com.example.late_plate.ui.screens.HomeRoute
+import com.example.late_plate.ui.screens.LoginRoute
+import com.example.late_plate.ui.screens.SignupRoute
 import com.example.late_plate.viewModel.AuthenticationViewModel
 import com.example.late_plate.viewModel.LoginSignupUiEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -67,21 +71,21 @@ fun LoginScreen(
             when(event){
                 is LoginSignupUiEvent.LoginSuccess-> {
                     Log.d("SUCCESS", "")
-                    navController.navigate(Screen.Home.route){
+                    navController.navigate(HomeRoute){
                         Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                        popUpTo(LoginRoute) { inclusive = true }
                     }
                 }
                 is LoginSignupUiEvent.ToForgotPassScreen->{
-                    navController.navigate(Screen.ForgotPass.route){
+                    navController.navigate(ForgotPasswordRoute){
                         Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
-                        popUpTo(Screen.Login.route) { inclusive = false }
+                        popUpTo(LoginRoute) { inclusive = false }
                     }
                 }
                 is LoginSignupUiEvent.ToSignupScreen->{
-                    navController.navigate(Screen.Signup.route){
+                    navController.navigate(SignupRoute){
                         Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
-                        popUpTo(Screen.Login.route) { inclusive = false }
+                        popUpTo(LoginRoute) { inclusive = false }
                     }
                 }
                 else->{}

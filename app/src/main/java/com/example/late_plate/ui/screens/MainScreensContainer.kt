@@ -29,6 +29,9 @@ import com.example.late_plate.ui.components.CustomBottomNavigationBar
 import com.example.late_plate.ui.screens.home.HomeScreen
 import com.example.late_plate.ui.screens.ingredients_detection.IngredientDetectionScreen
 import com.example.late_plate.ui.screens.inventory.InventoryScreen
+import com.example.late_plate.ui.screens.login_signup.ForgotPasswordScreen
+import com.example.late_plate.ui.screens.login_signup.LoginScreen
+import com.example.late_plate.ui.screens.login_signup.SignupScreen
 import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.ui.screens.recipe_generation.RecipeGenerationScreen
 import com.example.late_plate.viewModel.IngredientsViewModel
@@ -58,7 +61,7 @@ fun MainScreensContainer(
             CustomBottomNavigationBar(fabState, navController)
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = HomeRoute) {
+        NavHost(navController, startDestination = LoginRoute) {
             composable<HomeRoute> {
                 val recipes by recommendationViewModel.recipes.collectAsState()
                 Log.d("RECIPES", recipes.toString())
@@ -66,6 +69,23 @@ fun MainScreensContainer(
                     modifier = Modifier.padding(innerPadding),
                     data = recipes, fabState = fabState
                     ,navController
+                )
+            }
+            composable<LoginRoute>{
+                LoginScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController,
+                )
+            }
+            composable<SignupRoute>{
+                SignupScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController,
+                )
+            }
+            composable<ForgotPasswordRoute>{
+                ForgotPasswordScreen(
+                    navController = navController,
                 )
             }
             composable<InventoryRoute> {
@@ -168,6 +188,15 @@ object RecipeGenerationRoute
 
 @Serializable
 object InventoryRoute
+
+@Serializable
+object LoginRoute
+
+@Serializable
+object SignupRoute
+
+@Serializable
+object ForgotPasswordRoute
 
 @Serializable
 data class HomeRecipeRoute(val recipe: Recipe)
