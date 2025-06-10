@@ -8,11 +8,13 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.late_plate.data.InventoryDataStore
 import com.example.late_plate.ui.screens.MainScreensContainer
 import com.example.late_plate.ui.theme.Late_plateTheme
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
+import com.example.late_plate.viewModel.RecipesSuggestionViewModel
 import com.example.late_plate.viewModel.RecommendationViewModel
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +24,7 @@ class MainActivity : ComponentActivity() {
     private val ingredientsViewModel: IngredientsViewModel by viewModels()
     private val recommendationViewModel: RecommendationViewModel by viewModels()
     private val inventoryViewModel: InventoryViewModel by viewModels()
+    private val recipeSuggestionsViewModel: RecipesSuggestionViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +53,7 @@ class MainActivity : ComponentActivity() {
                     ingredientsViewModel,
                     recommendationViewModel,
                     inventoryViewModel,
+                    recipeSuggestionsViewModel,
                     ingredients,
                     applicationContext,
                     pagerState

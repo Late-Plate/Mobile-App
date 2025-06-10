@@ -21,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,11 +58,12 @@ fun LoginScreen(
 
     val loginAlertState by authenticationViewModel.loginAlert.collectAsState()
     val isLoading by authenticationViewModel.isLoadingLogin.collectAsState()
+    var loginSuccessHandled by remember { mutableStateOf(false) }
 
     if(loginAlertState){
         AuthenticationAlert(
             "Incorrect Email/Password",
-            { authenticationViewModel.loginAlert.value = false }
+            {authenticationViewModel.loginAlert.value = false }
         )
     }
     val context = LocalContext.current
@@ -70,10 +74,11 @@ fun LoginScreen(
             Log.d("loginEvent", event.toString())
             when(event){
                 is LoginSignupUiEvent.LoginSuccess-> {
-                    Log.d("SUCCESS", "")
-                    navController.navigate(HomeRoute){
-                        Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
-                        popUpTo(LoginRoute) { inclusive = true }
+                    if (!loginSuccessHandled) {
+                        loginSuccessHandled = true
+                        navController.navigate(HomeRoute) {
+                            popUpTo(LoginRoute) { inclusive = true }
+                        }
                     }
                 }
                 is LoginSignupUiEvent.ToForgotPassScreen->{
@@ -99,6 +104,10 @@ fun LoginScreen(
             .fillMaxSize()
             .statusBarsPadding()
     ) {
+        if (loginSuccessHandled) {
+            return
+        }
+
         AppLogo()
         Spacer(modifier = Modifier.height(16.dp))
         if(isLoading){

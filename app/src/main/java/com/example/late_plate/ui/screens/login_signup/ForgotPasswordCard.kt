@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.late_plate.R
@@ -104,9 +105,10 @@ fun ForgotPasswordCard(
         }
         else{
             Column(
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize()
+                    .padding(top = if(isSent == null) 0.dp else 64.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = if (isSent == null) Arrangement.Center else Arrangement.Top
             ){
                 if(isSent == null) CircularProgressIndicator()
                 else {
@@ -136,6 +138,7 @@ fun ForgotPasswordCard(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center
                     )
                 }
             }

@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,11 +43,15 @@ fun AuthenticationAlert(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier=Modifier.background(MaterialTheme.colorScheme.background).fillMaxWidth().shadow(8.dp, shape = RoundedCornerShape(16.dp))
+            modifier= Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxWidth()
+                .shadow(8.dp, shape = RoundedCornerShape(16.dp))
 
         ) {
             Column (
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ){
                 Column(
@@ -71,6 +76,8 @@ fun AuthenticationAlert(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(16.dp))
 
@@ -90,6 +97,11 @@ fun AuthenticationAlert(
 
         }
     }
+}
+@Preview
+@Composable
+fun previewAuthenticationAlert(){
+    AuthenticationAlert("Message") { }
 }
 
 

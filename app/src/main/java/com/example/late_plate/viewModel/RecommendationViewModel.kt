@@ -30,7 +30,6 @@ class RecommendationViewModel @Inject constructor(
     fun getRecipesBlocking(userId: Int) {
         viewModelScope.launch {
             try {
-                // First fetch the basic recipes
                 val result = recipeGenerationClient.getTopRecipes(userId)
 
                 val rawRecipes = when (result) {

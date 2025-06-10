@@ -106,7 +106,6 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
                             user = auth.currentUser
                             _loginSignupEvent.emit(LoginSignupUiEvent.LoginSuccess)
 
-                            // Optional: Save to Firestore if new user
                             val uid = user?.uid ?: return@launch
                             val userMap = hashMapOf(
                                 "username" to (user?.displayName ?: "Unknown"),
@@ -130,36 +129,6 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
     }
 
 
-    fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
-        val emailTrimmed = email.trim()
-        Log.d("FIREBASE_DEBUG", "Checking existence for: '$emailTrimmed'")
-
-        auth.fetchSignInMethodsForEmail(emailTrimmed)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val methods = task.result?.signInMethods ?: emptyList()
-                    Log.d("FIREBASE_DEBUG", "Sign-in methods found: $methods")
-                    callback(methods.isNotEmpty())
-                } else {
-                    val exception = task.exception
-                    Log.e("FIREBASE_DEBUG", "Error checking email", exception)
-
-                    when (exception) {
-                        is FirebaseAuthInvalidUserException -> {
-                            Log.d("FIREBASE_DEBUG", "Firebase explicitly reports user not found")
-                        }
-                        is FirebaseAuthException -> {
-                            Log.d("FIREBASE_DEBUG", "Auth error code: ${exception.errorCode}")
-                        }
-                        else -> {
-                            Log.d("FIREBASE_DEBUG", "Other error type: ${exception?.javaClass?.simpleName}")
-                        }
-                    }
-                    callback(false)
-                }
-            }
-    }
-
     fun navigateFromSignupToLogin(){
         viewModelScope.launch {
             _loginSignupEvent.emit(LoginSignupUiEvent.FromSignupToLogin)
@@ -181,7 +150,6 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
                             .build()
                         user?.updateProfile(profileUpdates)
 
-                        // Save user to Firestore
                         val userMap = hashMapOf(
                             "username" to username,
                             "email" to email,
@@ -211,49 +179,18 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
 
             }
     }
-
     fun resetPassword(email: String) {
-        val emailTrimmed = email.trim()
-        setupEmulatorIfDebug()
-        _uiState.value.isLoading = true
+        val emailTrimmed = email.trim().lowercase()
+        _uiState.value = _uiState.value.copy(isLoading = true)
 
-        auth.fetchSignInMethodsForEmail(emailTrimmed)
+        Firebase.auth.sendPasswordResetEmail(emailTrimmed)
             .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    handleSignInMethodsResult(emailTrimmed, task.result?.signInMethods)
-                } else {
-                    showMessageAndReset("Error checking email", isSent = false)
-                }
-            }
-    }
-
-    private fun setupEmulatorIfDebug() {
-        if (BuildConfig.DEBUG) {
-            try {
-                Firebase.auth.useEmulator("10.0.2.2", 9099)
-            } catch (e: Exception) {
-                Log.e("Emulator", "Emulator setup failed", e)
-            }
-        }
-    }
-
-    private fun handleSignInMethodsResult(email: String, methods: List<String>?) {
-        if (!methods.isNullOrEmpty()) {
-            sendResetEmail(email)
-        } else {
-            Log.d("ISLOADING", _uiState.value.isLoading.toString())
-            showMessageAndReset("Email not registered", isSent = false)
-        }
-    }
-
-    private fun sendResetEmail(email: String) {
-        auth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    showMessageAndReset("Reset email sent", isSent = true)
-                } else {
-                    showMessageAndReset("Failed to send reset email", isSent = false)
-                }
+                _uiState.value = _uiState.value.copy(isLoading = false)
+                showMessageAndReset(
+                    message = "If this email exists, you'll receive a reset link",
+                    isSent = true
+                )
+                Log.d("Auth", "Reset email result: ${task.isSuccessful}")
             }
     }
 
@@ -279,62 +216,6 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
             )
         }
     }
-
-
-
-
-//    fun resetPassword(email: String){
-//        if (email.isEmpty()) return
-//        Log.d("RESET", "")
-//        _uiState.value = _uiState.value.copy(isLoading = true, message = "", isSent = null)
-//        checkEmailExists(email) { exists ->
-//            if (exists) {
-//                auth.sendPasswordResetEmail(email.trim())
-//                    .addOnCompleteListener { task ->
-//                        viewModelScope.launch {
-//                            if (task.isSuccessful) {
-//                                Log.d("SUCCESS", "")
-//                                _loginSignupEvent.emit(LoginSignupUiEvent.PasswordResetSuccess)
-//                                _uiState.value = _uiState.value.copy(isLoading = true, message = "Password reset email sent.", isSent = true)
-//                            } else {
-//                                Log.d("Fail", "")
-//                                _loginSignupEvent.emit(LoginSignupUiEvent.PasswordResetFailed)
-//                                _uiState.value = _uiState.value.copy(isLoading = true, message = "Password reset email not sent!", isSent = false)
-//                            }
-//
-//                            kotlinx.coroutines.delay(3000)
-//
-//
-//
-//                        }
-//                    }
-//            }else{
-//                Log.d("NOT FOUND", "")
-//                _uiState.value = _uiState.value.copy(
-//                    isLoading = true,
-//                    message = "Password reset email not sent!",
-//                    isSent = false
-//                )
-//                viewModelScope.launch {
-//                    kotlinx.coroutines.delay(2000)
-//                    _uiState.value = _uiState.value.copy(
-//                        isLoading = false,
-//                        message = "",
-//                        isSent = null
-//                    )
-//                    _loginSignupEvent.emit(LoginSignupUiEvent.PasswordResetFailed)
-//
-//                }
-//
-//            }
-//        }
-//
-//
-//
-//
-//    }
-
-
 
 }
 

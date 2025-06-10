@@ -9,6 +9,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.SerializationException
 import util.NetworkError
 import util.Result
@@ -50,6 +52,14 @@ class RecipeGenerationClient (
             }
 
 
+        }
+    }
+    suspend fun generateRecipes(prompt: String): Pair<Result<String, NetworkError>, Result<String, NetworkError>> {
+        return coroutineScope {
+            val deferredRecipe1 = async { generateRecipe(prompt, "gpt") }
+            val deferredRecipe2 = async { generateRecipe(prompt, "llama") }
+
+            deferredRecipe1.await() to deferredRecipe2.await()
         }
     }
     suspend fun generateRecipe(prompt: String,model:String): Result<String,NetworkError>{

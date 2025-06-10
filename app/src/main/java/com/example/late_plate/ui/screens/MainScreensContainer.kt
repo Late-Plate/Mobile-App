@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.late_plate.dummy.Recipe
@@ -33,11 +34,14 @@ import com.example.late_plate.ui.screens.login_signup.ForgotPasswordScreen
 import com.example.late_plate.ui.screens.login_signup.LoginScreen
 import com.example.late_plate.ui.screens.login_signup.SignupScreen
 import com.example.late_plate.ui.screens.recipe.RecipeScreen
+import com.example.late_plate.ui.screens.recipe.RecipesSuggestionsScreen
 import com.example.late_plate.ui.screens.recipe_generation.RecipeGenerationScreen
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
+import com.example.late_plate.viewModel.RecipesSuggestionViewModel
 import com.example.late_plate.viewModel.RecommendationViewModel
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlin.reflect.typeOf
 
@@ -47,6 +51,7 @@ fun MainScreensContainer(
     ingredientsViewModel: IngredientsViewModel,
     recommendationViewModel: RecommendationViewModel,
     inventoryViewModel: InventoryViewModel,
+    recipesSuggestionViewModel: RecipesSuggestionViewModel,
     ingredients: List<String>,
     applicationContext: Context,
     pagerState: PagerState,
@@ -54,11 +59,22 @@ fun MainScreensContainer(
     val fabState = rememberFABState(Icons.Outlined.Person, onClick = {})
     val navController = rememberNavController()
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination?.route
+
+    val hideBottomBarRoutes = listOf(
+        LoginRoute::class.qualifiedName,
+        SignupRoute::class.qualifiedName,
+        ForgotPasswordRoute::class.qualifiedName
+    )
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            CustomBottomNavigationBar(fabState, navController)
+            if (currentDestination !in hideBottomBarRoutes) {
+                CustomBottomNavigationBar(fabState, navController)
+            }
         }
     ) { innerPadding ->
         NavHost(navController, startDestination = LoginRoute) {
@@ -102,7 +118,8 @@ fun MainScreensContainer(
             composable<RecipeGenerationRoute> {
                 RecipeGenerationScreen(
                     modifier = Modifier.padding(innerPadding),
-                    ingredientsViewModel, fabState = fabState,
+                    recipesSuggestionViewModel = recipesSuggestionViewModel,
+                    ingredientsViewModel = ingredientsViewModel, fabState = fabState,
                     navController=navController
                 )
             }
@@ -121,6 +138,14 @@ fun MainScreensContainer(
                     fabState = fabState,
                     navController = navController,
                     inventoryViewModel = inventoryViewModel
+                )
+            }
+            composable<RecipesSuggestionsRoute> {
+                RecipesSuggestionsScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    recipes = recipesSuggestionViewModel.recipes,
+                    fabState = fabState,
+                    navController = navController
                 )
             }
             composable<GenRecipeRoute> (typeMap = mapOf(typeOf<Recipe>() to RecipeNavType) ){
@@ -153,6 +178,22 @@ object RecipeNavType : NavType<Recipe>(isNullableAllowed = false) {
         bundle.putString(key, Json.encodeToString(value))
     }
 }
+object RecipeListNavType : NavType<List<Recipe>>(isNullableAllowed = false) {
+    override fun get(bundle: Bundle, key: String): List<Recipe> {
+        val json = bundle.getString(key) ?: return emptyList()
+        return Json.decodeFromString(ListSerializer(Recipe.serializer()), json)
+    }
+
+    override fun parseValue(value: String): List<Recipe> {
+        return Json.decodeFromString(ListSerializer(Recipe.serializer()), value)
+    }
+
+    override fun put(bundle: Bundle, key: String, value: List<Recipe>) {
+        bundle.putString(key, Json.encodeToString(ListSerializer(Recipe.serializer()), value))
+    }
+}
+
+
 class FABState(
     icon: ImageVector,
     onClick: () -> Unit,
@@ -200,8 +241,13 @@ object ForgotPasswordRoute
 
 @Serializable
 data class HomeRecipeRoute(val recipe: Recipe)
+
 @Serializable
 data class GenRecipeRoute(val recipe: Recipe)
+
+@Serializable
+object RecipesSuggestionsRoute
+
 // Example: You can switch screens here depending on state/navigation
 // Uncomment the screen you want to show:
 
