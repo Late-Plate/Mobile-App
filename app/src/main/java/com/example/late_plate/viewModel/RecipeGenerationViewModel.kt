@@ -125,6 +125,16 @@ class RecipeGenerationViewModel @Inject constructor(
         responseHalf=responseHalf.split(_titleStart).last()
         val title=responseHalf.split(_titleEnd).first()
 
+        val directionsText = instructionList.joinToString(" ")
+        val description = try {
+            Log.d("RecipeGenVM", "Starting description fetch for $title")
+            recipeImageDescriptionClient.generateRecipeDescriptionGemini(title, directionsText)
+                ?: "No description available"
+        } catch (e: Exception) {
+            Log.e("RecipeGenVM", "Description fetch failed", e)
+            "Description unavailable: ${e.message}"
+        }
+        
         val imageUrl = try {
             recipeImageDescriptionClient.fetchImageUrlFromEdamam(title)
                 ?: "https://via.placeholder.com/300"
