@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.rounded.Camera
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,20 +63,34 @@ import com.example.late_plate.ui.screens.FABState
 fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, fabState: FABState) {
     fabState.changeFAB(newIcon = Icons.Rounded.Camera, newOnClick = {})
 
-
     var classifications by remember { mutableStateOf(emptyList<Classification>()) }
     var selectedSpeed by remember { mutableStateOf("Normal") }
     val speeds = listOf("Fast", "Normal", "Slow")
     var selectedScore by remember { mutableStateOf("Medium") }
     val scores = listOf("High", "Medium", "Low")
-    val analyzer = remember(selectedScore, selectedSpeed) {
+
+    // Remember the classifier and manage its lifecycle
+    val classifier = remember(context) { TfliteClassifier(context = context) }
+
+    // Use DisposableEffect to clean up the classifier when it's no longer needed
+    DisposableEffect(classifier) {
+        onDispose {
+            // Call the close method when the classifier is no longer in use
+            // This happens when the Composable leaves the composition
+            // or when the 'classifier' key changes (though here it's remembered by context so it won't change often)
+            classifier.close() // Add a public close method to TfliteClassifier
+        }
+    }
+
+    val analyzer = remember(selectedScore, selectedSpeed, classifier) { // Add classifier to keys
         ImageAnalyzer(
             score = selectedScore,
             speed = selectedSpeed,
-            classifier = TfliteClassifier(context = context),
+            classifier = classifier, // Pass the remembered classifier
             onResult = { classifications = it }
         )
     }
+
     val controller = remember {
         LifecycleCameraController(context).apply {
             setEnabledUseCases(
@@ -82,8 +98,17 @@ fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, f
             )
             setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(context), analyzer)
         }
-
     }
+
+    // DisposableEffect for CameraController lifecycle
+    DisposableEffect(controller, analyzer) {
+        controller.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(context), analyzer)
+        onDispose {
+            // Ensure the analyzer is unset to release resources
+            controller.clearImageAnalysisAnalyzer()
+        }
+    }
+
     val activity = LocalContext.current as? Activity
 
     var hasPermission by remember {
@@ -98,14 +123,15 @@ fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, f
 
     LaunchedEffect(Unit) {
         lifecycleOwner?.lifecycle?.addObserver(
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    val permissionGranted = ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.CAMERA
-                    ) == PackageManager.PERMISSION_GRANTED
-
-                    hasPermission = permissionGranted
+            object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        val permissionGranted = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED
+                        hasPermission = permissionGranted
+                    }
                 }
             }
         )
@@ -213,5 +239,3 @@ fun IngredientDetectionScreen(context: Context, modifier: Modifier = Modifier, f
         }
     }
 }
-
-

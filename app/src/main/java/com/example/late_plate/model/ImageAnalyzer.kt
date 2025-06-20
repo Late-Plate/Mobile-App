@@ -26,19 +26,27 @@ class ImageAnalyzer(
     }
     private val threadCount = Runtime.getRuntime().availableProcessors()
     private val executor = Executors.newFixedThreadPool(threadCount)
+    @Volatile
+    private var isAnalyzing = false
+
     override fun analyze(image: ImageProxy) {
-        if (frameCount % frameSkip == 0) {
+        if (frameCount % frameSkip == 0 && !isAnalyzing) {
+            isAnalyzing = true
             val bitmap = image.toBitmap().crop()
+
             executor.execute {
                 try {
                     val byteBuffer = bitmap.convertBitmapToByteBuffer(640)
-                    val results = classifier.classify(byteBuffer,score)
+                    val results = classifier.classify(byteBuffer, score)
                     onResult(results)
                 } catch (e: Exception) {
                     e.printStackTrace()
+                } finally {
+                    isAnalyzing = false
                 }
             }
         }
+
         frameCount++
         image.close()
     }

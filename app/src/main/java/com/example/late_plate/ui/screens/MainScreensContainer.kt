@@ -132,6 +132,7 @@ object RecipeNavType : NavType<Recipe>(isNullableAllowed = false) {
         return Json.decodeFromString(value)
     }
 
+
     override fun put(bundle: Bundle, key: String, value: Recipe) {
         bundle.putString(key, Json.encodeToString(value))
     }
