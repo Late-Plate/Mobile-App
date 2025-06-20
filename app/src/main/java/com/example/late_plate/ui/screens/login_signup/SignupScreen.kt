@@ -18,6 +18,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
+import com.example.late_plate.ui.screens.LoginRoute
+import com.example.late_plate.ui.screens.SignupRoute
 import com.example.late_plate.viewModel.AuthenticationViewModel
 import com.example.late_plate.viewModel.LoginSignupUiEvent
 
@@ -41,15 +43,15 @@ fun SignupScreen(
         authenticationViewModel.loginSignupEvent.collect{ event->
             when(event){
                 is LoginSignupUiEvent.FromSignupToLogin->{
-                    navController.navigate(Screen.Login.route){
+                    navController.navigate(LoginRoute){
                         Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
-                        popUpTo(Screen.Signup.route) { inclusive = true }
+                        popUpTo(SignupRoute) { inclusive = true }
                     }
                 }
                 is LoginSignupUiEvent.SignupSuccess->{
-                    navController.navigate(Screen.Login.route){
+                    navController.navigate(LoginRoute){
                         Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
-                        popUpTo(Screen.Signup.route) { inclusive = true }
+                        popUpTo(SignupRoute) { inclusive = true }
                     }
                 }
                 else->{}

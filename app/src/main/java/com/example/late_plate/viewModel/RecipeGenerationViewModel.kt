@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.late_plate.dummy.Recipe
+import com.example.late_plate.dummy.dummyRecipes
 import com.example.late_plate.network.RecipeGenerationClient
 import com.example.late_plate.network.RecipeImageDescriptionClient
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import util.onError
+import util.onSuccess
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,8 +34,12 @@ class RecipeGenerationViewModel @Inject constructor(
     private val _instructionEnd="<INSTR_END>"
     private val _titleStart="<TITLE_START>"
     private val _titleEnd="<TITLE_END>"
-    private val _recipeState = MutableStateFlow<Recipe?>(null)
-    val recipeState: StateFlow<Recipe?> = _recipeState.asStateFlow()
+    private val _isSendingRequest = MutableStateFlow(false)
+    val isSendingRequest = _isSendingRequest.asStateFlow()
+    private val _bothFailed = MutableStateFlow(false)
+    val bothFailed = _bothFailed.asStateFlow()
+    private val _recipeState = MutableStateFlow<MutableList<Recipe>>(mutableListOf())
+    val recipeState: StateFlow<MutableList<Recipe>> = _recipeState.asStateFlow()
     private val _ingredients = MutableStateFlow<List<String>>(emptyList())
     val ingredients=_ingredients.asStateFlow()
     private val _selectedIngredients = MutableStateFlow<List<String>>(emptyList())
@@ -44,17 +51,24 @@ class RecipeGenerationViewModel @Inject constructor(
         _selectedIngredients.value=ingredients
     }
     fun resetRecipe(){
-        _recipeState.value=null
+        _recipeState.value= mutableListOf()
     }
-    fun getResponse(model:String){
+    fun getResponse(){
         viewModelScope.launch {
-            _recipeState.value=parseList(model)
+            _recipeState.value= parseList()
         }
     }
-    suspend fun parseList(model: String): Recipe? {
+    fun resetBothFailed(){
+        _bothFailed.value = false
+    }
+    suspend fun parseList(): MutableList<Recipe> {
+        var response1Fail = false
+        var response2Fail = false
+        _isSendingRequest.value = true
         Log.d("ingredients",_selectedIngredients.value.toString())
         if (_selectedIngredients.value.isEmpty()) {
-            return null
+            _isSendingRequest.value = false
+            return mutableListOf()
         }
         val request = StringBuilder().apply {
             append(_recipeStart)
@@ -65,8 +79,27 @@ class RecipeGenerationViewModel @Inject constructor(
             append(" $_inputEnd")
         }.toString()
         Log.d("request",request)
-        val response = recipeGenerationClient.generateRecipe(request, decideModel(model))
-        return parseResponse(response.toString())
+        val (response1, response2) = recipeGenerationClient.generateRecipes(request)
+        val recipesSuggestions = mutableListOf<Recipe>()
+        response1.onSuccess {
+            recipesSuggestions.add(parseResponse(response1.toString()))
+        }
+        response1.onError {
+            response1Fail = true
+        }
+        response2.onSuccess {
+            recipesSuggestions.add(parseResponse(response2.toString()))
+            _bothFailed.value = false
+        }
+        response2.onError {
+            response2Fail = true
+        }
+
+        if(response1Fail && response2Fail)
+            _bothFailed.value = true
+
+        _isSendingRequest.value = false
+        return recipesSuggestions
     }
     fun decideModel(model:String):String{
         when(model){
@@ -78,7 +111,7 @@ class RecipeGenerationViewModel @Inject constructor(
     }
     suspend fun parseResponse(response:String):Recipe{
         Log.d("response",response)
-       var responseHalf= response.split(_ingredientStart).last()
+        var responseHalf= response.split(_ingredientStart).last()
         val ingredientList=responseHalf.split(_nextIngredient).toMutableList()
 
         responseHalf=ingredientList.last()
@@ -92,6 +125,16 @@ class RecipeGenerationViewModel @Inject constructor(
         responseHalf=responseHalf.split(_titleStart).last()
         val title=responseHalf.split(_titleEnd).first()
 
+        val directionsText = instructionList.joinToString(" ")
+        val description = try {
+            Log.d("RecipeGenVM", "Starting description fetch for $title")
+            recipeImageDescriptionClient.generateRecipeDescriptionGemini(title, directionsText)
+                ?: "No description available"
+        } catch (e: Exception) {
+            Log.e("RecipeGenVM", "Description fetch failed", e)
+            "Description unavailable: ${e.message}"
+        }
+        
         val imageUrl = try {
             recipeImageDescriptionClient.fetchImageUrlFromEdamam(title)
                 ?: "https://via.placeholder.com/300"

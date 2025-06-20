@@ -148,19 +148,12 @@ fun LoginCard(
                 Spacer(modifier=Modifier.width(16.dp))
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Row {
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
                 IconButton(onClick = {launcher.launch(googleSignInClient.signInIntent)},modifier=Modifier.size(36.dp)) {
                     Icon(
                         painter = painterResource(id = R.drawable.google),
-                        tint = MaterialTheme.colorScheme.primary,
-                        contentDescription = null
-                    )
-                }
-                Spacer(modifier=Modifier.width(16.dp))
-                IconButton(onClick = {},modifier=Modifier.size(36.dp) ){
-                    Icon(
-
-                        painter = painterResource(id = R.drawable.facebook),
                         tint = MaterialTheme.colorScheme.primary,
                         contentDescription = null
                     )

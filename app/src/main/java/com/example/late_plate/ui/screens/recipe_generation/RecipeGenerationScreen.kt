@@ -26,8 +26,11 @@ import com.example.late_plate.ui.components.SelectedItem
 import com.example.late_plate.ui.screens.FABState
 import com.example.late_plate.ui.screens.GenRecipeRoute
 import com.example.late_plate.ui.screens.HomeRecipeRoute
+import com.example.late_plate.ui.screens.RecipesSuggestionsRoute
+import com.example.late_plate.ui.screens.login_signup.AuthenticationAlert
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.RecipeGenerationViewModel
+import com.example.late_plate.viewModel.RecipesSuggestionViewModel
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -35,6 +38,7 @@ import com.example.late_plate.viewModel.RecipeGenerationViewModel
 fun RecipeGenerationScreen(
     modifier: Modifier = Modifier,
     ingredientsViewModel: IngredientsViewModel,
+    recipesSuggestionViewModel: RecipesSuggestionViewModel,
     recipeGenerationViewModel: RecipeGenerationViewModel = hiltViewModel(),
     fabState: FABState,
     navController: NavController
@@ -46,16 +50,30 @@ fun RecipeGenerationScreen(
     var searchText by remember { mutableStateOf("") }
     val selectedIngredients = remember { mutableStateListOf<String>() }
     val recipe by recipeGenerationViewModel.recipeState.collectAsState()
+    val isSendingRequest by recipeGenerationViewModel.isSendingRequest.collectAsState()
+    val bothFailed by recipeGenerationViewModel.bothFailed.collectAsState()
+
+    if(bothFailed){
+        AuthenticationAlert("Our smart kitchen lost its signal!") { recipeGenerationViewModel.resetBothFailed() }
+    }
     LaunchedEffect(recipe) {
-        recipe?.let {
+        if(recipe.isNotEmpty()){
             fabState.loading(false)
-            navController.navigate(HomeRecipeRoute(it))
+            recipesSuggestionViewModel.recipes = recipe.toList()
+            navController.navigate(RecipesSuggestionsRoute)
             recipeGenerationViewModel.resetRecipe()
         }
     }
+    LaunchedEffect(isSendingRequest) {
+        if(isSendingRequest)
+            fabState.loading(true)
+        else
+            fabState.loading(false)
+
+    }
+
     fabState.changeFAB(Icons.Rounded.Bolt, newOnClick = {
-        fabState.loading(true)
-      recipeGenerationViewModel.getResponse(selectedModel)
+        recipeGenerationViewModel.getResponse()
     })
     Column(
         modifier = Modifier
@@ -129,15 +147,15 @@ fun RecipeGenerationScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ExpandableSelectionCard(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            options = models,
-            selectedOption = selectedModel,
-            onOptionSelected = { selectedModel = it },
-            label = "AI Model"
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+//        ExpandableSelectionCard(
+//            modifier = Modifier.padding(horizontal = 16.dp),
+//            options = models,
+//            selectedOption = selectedModel,
+//            onOptionSelected = { selectedModel = it },
+//            label = "AI Model"
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
         val scrollState = rememberScrollState()
         Column(modifier = Modifier.verticalScroll(scrollState).fillMaxSize()) {
             if (selectedIngredients.isNotEmpty()) {
