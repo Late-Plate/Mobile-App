@@ -25,6 +25,7 @@ import com.example.late_plate.ui.screens.login_signup.SignupScreen
 import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
+import com.example.late_plate.viewModel.RecipeCatalogViewModel
 
 @Composable
 fun AppNavHost(
@@ -36,7 +37,8 @@ fun AppNavHost(
     ingredientsViewModel: IngredientsViewModel,
     inventoryViewModel: InventoryViewModel,
     pagerState: PagerState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    reccipeCatalogViewModel: RecipeCatalogViewModel
 ) {
     NavHost(
         navController = navController,
@@ -57,7 +59,8 @@ fun AppNavHost(
                 data = recipes,
                 modifier = Modifier,
                 fabState = fabState,
-                navController = navController
+                navController = navController,
+                recipeCatalogViewModel = reccipeCatalogViewModel
             )
         }
 

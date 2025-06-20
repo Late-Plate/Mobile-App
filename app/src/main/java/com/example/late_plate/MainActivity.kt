@@ -13,6 +13,7 @@ import com.example.late_plate.ui.screens.MainScreensContainer
 import com.example.late_plate.ui.theme.Late_plateTheme
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
+import com.example.late_plate.viewModel.RecipeCatalogViewModel
 import com.example.late_plate.viewModel.RecommendationViewModel
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
     private val ingredientsViewModel: IngredientsViewModel by viewModels()
     private val recommendationViewModel: RecommendationViewModel by viewModels()
     private val inventoryViewModel: InventoryViewModel by viewModels()
-
+    private val recipeCatalogViewModel: RecipeCatalogViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
@@ -39,7 +40,8 @@ class MainActivity : ComponentActivity() {
 
             val ingredients by ingredientsViewModel.ingredientsList.collectAsState()
             val recipes = recommendationViewModel.getRecipesBlocking(5215572)
-
+            recipeCatalogViewModel.getRecipes(0,10);
+            val catalogRecipes = recipeCatalogViewModel.recipes.collectAsState()
             LaunchedEffect(ingredients) {
                 if (ingredients.isNotEmpty()) isLoading = false
             }
@@ -52,7 +54,8 @@ class MainActivity : ComponentActivity() {
                     inventoryViewModel,
                     ingredients,
                     applicationContext,
-                    pagerState
+                    pagerState,
+                    recipeCatalogViewModel
                 )
             }
         }

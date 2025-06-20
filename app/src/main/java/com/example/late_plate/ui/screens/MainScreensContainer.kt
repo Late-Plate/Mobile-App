@@ -33,6 +33,7 @@ import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.ui.screens.recipe_generation.RecipeGenerationScreen
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
+import com.example.late_plate.viewModel.RecipeCatalogViewModel
 import com.example.late_plate.viewModel.RecommendationViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -47,6 +48,7 @@ fun MainScreensContainer(
     ingredients: List<String>,
     applicationContext: Context,
     pagerState: PagerState,
+    recipeCatalogViewModel: RecipeCatalogViewModel
 ) {
     val fabState = rememberFABState(Icons.Outlined.Person, onClick = {})
     val navController = rememberNavController()
@@ -66,6 +68,7 @@ fun MainScreensContainer(
                     modifier = Modifier.padding(innerPadding),
                     data = recipes, fabState = fabState
                     ,navController
+                    ,recipeCatalogViewModel
                 )
             }
             composable<InventoryRoute> {
