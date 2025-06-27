@@ -86,7 +86,8 @@ fun MainScreensContainer(
                 HomeScreen(
                     modifier = Modifier.padding(innerPadding),
                     data = recipes, fabState = fabState
-                    ,navController
+                    ,navController,
+                    recipeCatalogViewModel
                 )
             }
             composable<LoginRoute>{
