@@ -38,6 +38,18 @@ class InventoryViewModel @Inject constructor(
             _addOrUpdate = value
         }
 
+    val originalUnits = listOf(
+        "g", "kg", "ml", "l", "tbsp", "tsp", "cup", "cups", "oz", "ounce", "ounces", "lb", "pound", "pounds",
+        "packet", "unit"
+    )
+
+    val unitMap = originalUnits.associateWith { unit ->
+        when (unit) {
+            "packet", "unit" -> unit
+            else -> "kg"
+        }
+    }
+
     val kitchenMetrics = mapOf(
         "cup" to 0.25f,
         "cups" to 0.25f,
@@ -190,6 +202,7 @@ class InventoryViewModel @Inject constructor(
     }
 
     private fun extractIngredients(ingredientsList: List<String>): MutableList<IngredientEntry> {
+
         val ingredients = mutableListOf<IngredientEntry>()
         val quantityType = StringBuilder()
 
@@ -199,12 +212,40 @@ class InventoryViewModel @Inject constructor(
             var splitWords = ingredient.split(" ")
 
             splitWords.forEachIndexed { index, word ->
-                val hasDigits = word.contains(Regex("\\d"))
-                if (hasDigits) {
-                    if (fractionRegex.matches(word)) {
-                        quantity += fractionToDecimal(word)
-                    } else {
-                        quantity += word.toDouble()
+                if(hasLettersAndDigits(word)){
+                    val regex = Regex("""(\d+(\.\d+)?)([a-zA-Z]+)""")
+                    val match = regex.find(word.trim())
+
+                    if (match != null) {
+                        val amount = match.groupValues[1].toDoubleOrNull()?:1.0
+                        val rawUnit = match.groupValues[3].lowercase()
+
+                        val multiplier = when (rawUnit) {
+                            "g" -> 1 / 1000.0
+                            "ml" -> 1 / 1000.0
+                            "cup", "cups" -> 0.25
+                            "teaspoon", "tsp" -> 0.005
+                            "tablespoon", "tbsp" -> 0.015
+                            "oz", "ounce", "ounces" -> 0.02835
+                            "lb", "pound", "pounds" -> 0.4536
+                            else -> 1.0
+                        }
+
+                        val standardUnit = unitMap[rawUnit] ?: rawUnit
+                        quantityType.append(standardUnit)
+                        quantity += amount * multiplier
+                    }
+                }
+                else if(word.contains(Regex("\\d"))){
+                    try {
+                        quantity += if (fractionRegex.matches(word)) {
+                            fractionToDecimal(word)
+                        } else {
+                            word.toDouble()
+                        }
+                    } catch (e: NumberFormatException) {
+                        println("Invalid number format: '$word''")
+                        return@forEachIndexed
                     }
                 } else {
                     var indexToStartFrom = 0
@@ -220,7 +261,8 @@ class InventoryViewModel @Inject constructor(
                             indexToStartFrom = index + 1
                         }
                         else {
-                            quantityType.append("unit")
+                            if(quantityType.isEmpty())
+                                quantityType.append("unit")
                             indexToStartFrom = index
                         }
 
@@ -242,6 +284,11 @@ class InventoryViewModel @Inject constructor(
 
         }
         return ingredients
+    }
+    fun hasLettersAndDigits(word: String): Boolean {
+        val hasLetter = word.any { it.isLetter() }
+        val hasDigit = word.any { it.isDigit() }
+        return hasLetter && hasDigit
     }
 
 

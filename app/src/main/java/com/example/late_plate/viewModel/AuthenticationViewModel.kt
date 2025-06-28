@@ -22,13 +22,35 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import com.example.late_plate.util.isConnected
+import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
 class AuthenticationViewModel @Inject constructor(val application: Application): ViewModel() {
-
-    private val auth = FirebaseAuth.getInstance()
-    val firestore = FirebaseFirestore.getInstance()
+    lateinit var auth: FirebaseAuth
+    lateinit var firestore: FirebaseFirestore
     private var user: FirebaseUser? = null
+    var userLoggedIn = MutableStateFlow(false)
+        private set
+
+
+    init {
+        Log.d("AUTHENTICATION", "entered view model")
+        try {
+            auth = FirebaseAuth.getInstance()
+            firestore = FirebaseFirestore.getInstance()
+            user = auth?.currentUser
+            if(user != null){
+                userLoggedIn.value = true
+            }
+        } catch (e: Exception) {
+            Log.e("AUTH_VIEWMODEL", "Firebase init failed", e)
+        }
+    }
 
     private val _loginSignupEvent = MutableSharedFlow<LoginSignupUiEvent>()
     val loginSignupEvent = _loginSignupEvent.asSharedFlow()
@@ -42,21 +64,31 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
     val isLoadingLogin = MutableStateFlow(false)
 
 
-    fun loginUser(email: String, password: String){
-        if(email.isEmpty() || password.isEmpty()) return
+    fun loginUser(email: String, password: String) {
+        val trimmedEmail = email.trim()
+        val trimmedPassword = password.trim()
+
+        if (trimmedEmail.isEmpty() || trimmedPassword.isEmpty()) return
+
+        if (!isConnected(application)) {
+            viewModelScope.launch {
+                _loginSignupEvent.emit(LoginSignupUiEvent.LoginFailed("No internet connection"))
+            }
+            return
+        }
 
         isLoadingLogin.value = true
 
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                task ->
-                viewModelScope.launch{
-                    if(task.isSuccessful) {
+        auth.signInWithEmailAndPassword(trimmedEmail, trimmedPassword)
+            .addOnCompleteListener { task ->
+                viewModelScope.launch {
+                    if (task.isSuccessful) {
                         user = auth.currentUser
                         Log.d("LOGIN", "SUCCESS!!! ${user!!.uid}")
                         _loginSignupEvent.emit(LoginSignupUiEvent.LoginSuccess)
                         loginAlert.value = false
                         isLoadingLogin.value = false
+
                         FirebaseFirestore.getInstance()
                             .collection("users")
                             .document(user!!.uid)
@@ -74,15 +106,14 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
                             .addOnFailureListener { exception ->
                                 Log.w("FIRESTORE_USER", "Failed to get user document", exception)
                             }
-                    }
-                    else {
+                    } else {
                         loginAlert.value = true
                         isLoadingLogin.value = false
                     }
                 }
-
             }
     }
+
 
     fun navigateToForgotPass(){
         viewModelScope.launch {
@@ -97,6 +128,12 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
     }
 
     fun firebaseAuthWithGoogle(idToken: String) {
+        if (!isConnected(application)) {
+            viewModelScope.launch {
+                _loginSignupEvent.emit(LoginSignupUiEvent.LoginFailed("No internet connection"))
+            }
+            return
+        }
         val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
         viewModelScope.launch {
             auth.signInWithCredential(credential)
@@ -136,52 +173,77 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
     }
 
 
-    fun registerUser(username: String, email: String, password: String, confirmPass: String){
-        if(username.isEmpty() || email.isEmpty() || username.isEmpty()) return
-        if(!password.equals(confirmPass)) return
-        auth.createUserWithEmailAndPassword(email, password)
+    fun registerUser(username: String, email: String, password: String, confirmPass: String) {
+        val trimmedUsername = username.trim()
+        val trimmedEmail = email.trim()
+        val trimmedPass = password.trim()
+        val trimmedConfirmPass = confirmPass.trim()
+
+        if (trimmedUsername.isEmpty() || trimmedEmail.isEmpty() || trimmedPass.isEmpty() || trimmedConfirmPass.isEmpty()) return
+        if (trimmedPass != trimmedConfirmPass) {
+            signupAlert.value = true
+            return
+        }
+
+        if (!isConnected(application)) {
+            viewModelScope.launch {
+                _loginSignupEvent.emit(LoginSignupUiEvent.SignupFailed)
+            }
+            return
+        }
+
+        auth.createUserWithEmailAndPassword(trimmedEmail, trimmedPass)
             .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val user = auth.currentUser
-                        val uid = user?.uid
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    val uid = user?.uid
 
-                        val profileUpdates = UserProfileChangeRequest.Builder()
-                            .setDisplayName(username)
-                            .build()
-                        user?.updateProfile(profileUpdates)
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(trimmedUsername)
+                        .build()
+                    user?.updateProfile(profileUpdates)
 
+                    if (uid != null) {
                         val userMap = hashMapOf(
-                            "username" to username,
-                            "email" to email,
+                            "username" to trimmedUsername,
+                            "email" to trimmedEmail,
                             "uID" to 1
                         )
 
-                        if (uid != null) {
-                            firestore.collection("users")
-                                .document(uid)
-                                .set(userMap)
-                                .addOnSuccessListener {
-                                    viewModelScope.launch {
-                                        _loginSignupEvent.emit((LoginSignupUiEvent.SignupSuccess))
-                                    }
-                                    signupAlert.value = false
+                        firestore.collection("users")
+                            .document(uid)
+                            .set(userMap)
+                            .addOnSuccessListener {
+                                viewModelScope.launch {
+                                    _loginSignupEvent.emit(LoginSignupUiEvent.SignupSuccess)
                                 }
-                                .addOnFailureListener {
-                                    viewModelScope.launch {
-                                        _loginSignupEvent.emit((LoginSignupUiEvent.SignupFailed))
-                                    }
-                                    signupAlert.value = true
+                                signupAlert.value = false
+                            }
+                            .addOnFailureListener {
+                                user?.delete() // optional cleanup
+                                viewModelScope.launch {
+                                    _loginSignupEvent.emit(LoginSignupUiEvent.SignupFailed)
                                 }
-                        }
-
+                                signupAlert.value = true
+                            }
+                    } else {
+                        signupAlert.value = true
+                    }
+                } else {
+                    signupAlert.value = true
                 }
-                    else signupAlert.value = true
-
             }
     }
     fun resetPassword(email: String) {
         val emailTrimmed = email.trim().lowercase()
         _uiState.value = _uiState.value.copy(isLoading = true)
+
+        if (!isConnected(application)) {
+            viewModelScope.launch {
+                _loginSignupEvent.emit(LoginSignupUiEvent.LoginFailed("No internet connection"))
+            }
+            return
+        }
 
         Firebase.auth.sendPasswordResetEmail(emailTrimmed)
             .addOnCompleteListener { task ->
@@ -217,13 +279,13 @@ class AuthenticationViewModel @Inject constructor(val application: Application):
         }
     }
 
+
+
 }
 
 sealed class LoginSignupUiEvent {
     object LoginSuccess : LoginSignupUiEvent()
     data class LoginFailed(val message: String) : LoginSignupUiEvent()
-    object PasswordResetSuccess : LoginSignupUiEvent()
-    object PasswordResetFailed : LoginSignupUiEvent()
     object ToForgotPassScreen: LoginSignupUiEvent()
     object ToSignupScreen: LoginSignupUiEvent()
     object SignupSuccess: LoginSignupUiEvent()

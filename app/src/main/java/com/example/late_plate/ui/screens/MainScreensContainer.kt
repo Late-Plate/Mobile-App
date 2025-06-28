@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +37,7 @@ import com.example.late_plate.ui.screens.login_signup.SignupScreen
 import com.example.late_plate.ui.screens.recipe.RecipeScreen
 import com.example.late_plate.ui.screens.recipe.RecipesSuggestionsScreen
 import com.example.late_plate.ui.screens.recipe_generation.RecipeGenerationScreen
+import com.example.late_plate.viewModel.AuthenticationViewModel
 import com.example.late_plate.viewModel.IngredientsViewModel
 import com.example.late_plate.viewModel.InventoryViewModel
 import com.example.late_plate.viewModel.RecipeCatalogViewModel
@@ -53,7 +55,6 @@ fun MainScreensContainer(
     recommendationViewModel: RecommendationViewModel,
     inventoryViewModel: InventoryViewModel,
     recipesSuggestionViewModel: RecipesSuggestionViewModel,
-    ingredients: List<String>,
     applicationContext: Context,
     pagerState: PagerState,
     recipeCatalogViewModel: RecipeCatalogViewModel
@@ -69,6 +70,8 @@ fun MainScreensContainer(
         SignupRoute::class.qualifiedName,
         ForgotPasswordRoute::class.qualifiedName
     )
+    val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
+
 
 
     Scaffold(
@@ -79,7 +82,7 @@ fun MainScreensContainer(
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = LoginRoute) {
+        NavHost(navController, startDestination = if(authenticationViewModel.userLoggedIn.value) HomeRoute else LoginRoute) {
             composable<HomeRoute> {
                 val recipes by recommendationViewModel.recipes.collectAsState()
                 Log.d("RECIPES", recipes.toString())
@@ -94,6 +97,7 @@ fun MainScreensContainer(
                 LoginScreen(
                     modifier = Modifier.padding(innerPadding),
                     navController = navController,
+                    authenticationViewModel
                 )
             }
             composable<SignupRoute>{

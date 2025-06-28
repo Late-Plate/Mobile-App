@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,6 +37,7 @@ import com.example.late_plate.R
 import com.example.late_plate.ui.components.CustomButton
 import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.ui.components.CustomTextField
+import com.example.late_plate.util.isConnected
 
 @Composable
 fun ForgotPasswordCard(
@@ -45,7 +47,10 @@ fun ForgotPasswordCard(
     isSent: Boolean?,
     message: String
 ) {
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
+    var noInternet by remember { mutableStateOf(false) }
+
     CustomCard(modifier = Modifier.fillMaxSize()) {
         if(!isLoading){
             Column(
@@ -96,11 +101,19 @@ fun ForgotPasswordCard(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 CustomButton(
-                    onClick = {sendClick(email)},
+                    onClick = {
+                        if(isConnected(context))
+                            sendClick(email)
+                        else
+                            noInternet = true
+                    },
                     content = {
                         Text("Send", Modifier.padding(horizontal = 32.dp), fontSize = 18.sp)
                     }
                 )
+            }
+            if(noInternet){
+                AuthenticationAlert("Oops! No Internet") {noInternet = false }
             }
         }
         else{

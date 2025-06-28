@@ -40,10 +40,12 @@ class RecommendationViewModel @Inject constructor(
                     }
                 }
 
+                Log.d("RecommendationVM", "after raw recipes")
                 // Immediately show recipes without descriptions/images
                 _recipes.value = rawRecipes.map {
                     it.copy(description = "Loading description...", imageUrl = "loading_image_url")
                 }
+                Log.d("RecommendationVM", "after mapping")
 
                 // Then enrich each recipe asynchronously
                 rawRecipes.forEachIndexed { index, recipe ->
@@ -83,8 +85,10 @@ class RecommendationViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                Log.e("RecommendationVM", "Error getting recipes", e)
+                Log.e("RecommendationVM", "Error getting recipes ${e}", e)
                 _recipes.value = dummyRecipes
+                Log.e("RecommendationVM", "after modifying value")
+
             }
         }
     }

@@ -1,4 +1,5 @@
 package com.example.late_plate.ui.screens.login_signup
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -33,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.late_plate.R
-import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
 import com.example.late_plate.ui.components.CustomCard
 import com.example.late_plate.ui.screens.ForgotPasswordRoute
@@ -49,16 +49,18 @@ import com.google.android.gms.common.api.ApiException
 
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    authenticationViewModel: AuthenticationViewModel
 ) {
-    val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
 
     val loginAlertState by authenticationViewModel.loginAlert.collectAsState()
     val isLoading by authenticationViewModel.isLoadingLogin.collectAsState()
     var loginSuccessHandled by remember { mutableStateOf(false) }
+    var noInternet by remember { mutableStateOf(false) }
 
     if(loginAlertState){
         AuthenticationAlert(

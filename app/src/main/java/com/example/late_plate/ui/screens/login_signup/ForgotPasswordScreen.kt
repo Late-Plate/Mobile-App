@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
 import com.example.late_plate.ui.screens.ForgotPasswordRoute
 import com.example.late_plate.ui.screens.LoginRoute
@@ -29,7 +28,6 @@ fun ForgotPasswordScreen(
     navController: NavController
 ){
     val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
-    var message by remember { mutableStateOf("") }
     val uiState by authenticationViewModel.uiState.collectAsState()
     LaunchedEffect(uiState.isSent) {
         when (uiState.isSent) {
@@ -39,38 +37,17 @@ fun ForgotPasswordScreen(
             else -> {
                 Log.d("ISSENT", "not null, ${uiState.isLoading}, ${uiState.message}")
 
-                // Delay navigation by 3 seconds
                 delay(2000)
 
-                // Log before navigating
                 Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
-
-                if (navController.currentDestination?.route != Screen.Login.route) {
-                    Log.d("NavController", "Navigating to Login")
-                    navController.navigate(LoginRoute) {
-                        Log.d("NavController", "Popping up to ForgotPass: inclusive=true")
-                        popUpTo(ForgotPasswordRoute) { inclusive = true }
-                    }
-                } else {
-                    Log.d("NavController", "Already at Login screen, no navigation needed")
+                Log.d("NavController", "Navigating to Login")
+                navController.navigate(LoginRoute) {
+                    Log.d("NavController", "Popping up to ForgotPass: inclusive=true")
+                    popUpTo(ForgotPasswordRoute) { inclusive = true }
                 }
             }
         }
     }
-
-//    LaunchedEffect(true) {
-//        authenticationViewModel.loginEvent.collect { event ->
-//            when (event) {
-//                is LoginSignupUiEvent.PasswordResetSuccess -> {
-//                    message = event.message
-//                }
-//                is LoginSignupUiEvent.PasswordResetFailed -> {
-//                    message = event.message
-//                }
-//                else -> {}
-//            }
-//        }
-//    }
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center
@@ -85,8 +62,3 @@ fun ForgotPasswordScreen(
         )
     }
 }
-//@Preview
-//@Composable
-//fun previewForgotPass(){
-//    ForgotPasswordScreen()
-//}

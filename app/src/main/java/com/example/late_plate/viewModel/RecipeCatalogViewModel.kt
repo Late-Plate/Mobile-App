@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
 import org.json.JSONException
+import util.onError
 import util.onSuccess
 import javax.inject.Inject
 
@@ -32,21 +33,47 @@ class RecipeCatalogViewModel @Inject constructor(
     val recipes: StateFlow<Set<Recipe>> = _recipes.asStateFlow()
     private val _searchedRecipes = MutableStateFlow<Set<Recipe>>(emptySet())
     val searchedRecipes: StateFlow<Set<Recipe>> = _searchedRecipes.asStateFlow()
-
     fun getRecipes(page: Int, pageSize: Int) {
         if (_isLoading.value) return
+
         viewModelScope.launch {
             _isLoading.value = true
-            val response = recipeCatalogClient.getRecipes(page, pageSize)
-            response.onSuccess {
-                Log.d("content",it.content.toString())
-                val newRecipes = parseRecipes(it.content)
-                _recipes.value += newRecipes
+            try {
+                val response = recipeCatalogClient.getRecipes(page, pageSize)
+                response.onSuccess {
+                    Log.d("content", it.content.toString())
+                    val newRecipes = parseRecipes(it.content)
+                    _recipes.value += newRecipes
+                }.onError {
+                    Log.e("RecipeCatalogViewModel", "API call failed: ${it}")
+                    // Optionally show fallback UI or error message
+                }
+            } catch (e: Exception) {
+                Log.e("RecipeCatalogViewModel", "Exception during recipe fetch ${e}")
+                // Optionally handle the error (e.g., show Toast or update UI state)
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
+
             Log.d("RecipeCatalogViewModel", "getRecipes: ${recipes.value}")
         }
     }
+
+
+    //    fun getRecipes(page: Int, pageSize: Int) {
+//        if (_isLoading.value) return
+//        viewModelScope.launch {
+//            _isLoading.value = true
+//            val response = recipeCatalogClient.getRecipes(page, pageSize)
+//            response.onSuccess {
+//                Log.d("content",it.content.toString())
+//                val newRecipes = parseRecipes(it.content)
+//                _recipes.value += newRecipes
+//            }
+//            _isLoading.value = false
+//            Log.d("RecipeCatalogViewModel", "getRecipes: ${recipes.value}")
+//        }
+//    }
     fun searchRecipes(query: String, page: Int=0, pageSize: Int=10) {
         viewModelScope.launch {
             viewModelScope.launch {

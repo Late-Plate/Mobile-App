@@ -16,8 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.late_plate.navigation.Screen
 import com.example.late_plate.ui.components.AppLogo
+import com.example.late_plate.ui.screens.HomeRoute
 import com.example.late_plate.ui.screens.LoginRoute
 import com.example.late_plate.ui.screens.SignupRoute
 import com.example.late_plate.viewModel.AuthenticationViewModel
@@ -34,7 +34,7 @@ fun SignupScreen(
 
     if(signupAlertState){
         AuthenticationAlert(
-            "Email already in use",
+            "Registration Not Successful!",
             { authenticationViewModel.signupAlert.value = false }
         )
     }
@@ -49,7 +49,7 @@ fun SignupScreen(
                     }
                 }
                 is LoginSignupUiEvent.SignupSuccess->{
-                    navController.navigate(LoginRoute){
+                    navController.navigate(HomeRoute){
                         Log.d("NavController", "Current destination: ${navController.currentDestination?.route}")
                         popUpTo(SignupRoute) { inclusive = true }
                     }
