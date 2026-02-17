@@ -67,7 +67,7 @@ https://github.com/user-attachments/assets/516059cd-2e5f-48d6-9f64-2991ca8210d7
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_ORG/mobile-app.git
+git clone https://github.com/YOUR_ORG/mobile-app.git](https://github.com/Late-Plate/Mobile-App.git
 ```
 2. Open in Android Studio.
 3. Make sure to add your google-services.json file to the /app directory.
